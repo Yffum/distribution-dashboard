@@ -212,7 +212,6 @@ const customLabelsPlugin = {
                 const x = scales.x.getPixelForValue(data.labels ? data.labels[i] : i+1);
                 const y = scales.y.getPixelForValue(value);
                 const labelValue = chart.data.labels[i];
-                const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
 
                 switch (labelText) {
                     case 'Very Unlikely':
