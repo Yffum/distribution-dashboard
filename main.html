@@ -107,9 +107,10 @@ const cdfChart = new Chart(ctx, {
             backgroundColor: 'rgba(31, 78, 121, 0.1)',
             borderColor: '#1f4e79',
             borderWidth: 2,
-            tension: 0.3,
+            tension: 0,
             pointBackgroundColor: '#1f4e79',
-            pointRadius: 0.2
+            pointRadius: 0,
+            pointHoverRadius: 0
         }]
     },
     options: {
@@ -117,13 +118,13 @@ const cdfChart = new Chart(ctx, {
         maintainAspectRatio: false,
         layout: {
             padding: {
-                top: 100, // Headroom for labels
+                top: 120, // Headroom for labels
                 right: 50
             }
         },
         plugins: {
             legend: {
-                display: true,
+                display: false,
                 labels: {
                     color: '#333',
                     font: { size: 14 }
@@ -144,12 +145,14 @@ const cdfChart = new Chart(ctx, {
                 ticks: {
                     color: '#333',
                     callback: function(value, index, values) {
-                        // Only show integer powers of 10 for clarity
                         if ([5, 10, 20, 50, 100, 200, 500, 1000].includes(value)) {
                             return value;
                         }
                         return '';
                     }
+                },
+                grid: {
+                    drawTicks: true
                 },
                 title: {
                     display: true,
@@ -186,19 +189,25 @@ const cdfChart = new Chart(ctx, {
             // List of [threshold, label] tuples
             const thresholds = [
                 [0.1, 'Very Unlikely'],
-                [0.33, 'Unlikely'],
+                [0.3, 'Unlikely'],
                 [0.5, 'Even Chance'],
-                [0.66, 'Likely'],
+                [0.7, 'Likely'],
                 [0.9, 'Very Likely'],
                 [0.99, 'Almost Certain']
             ];
 
             let thresholdIdx = 0;
+            let prevTextBottom = null;
+            const labelHeight = 14 * 3;
+            const minSpacing = 8;
+
+            let firstAboveHalf = null;
+
             for (let i = 0; i < dataset.data.length && thresholdIdx < thresholds.length; i++) {
                 const value = dataset.data[i];
                 const [prob, labelText] = thresholds[thresholdIdx];
                 if (value >= prob) {
-                    const x = scales.x.getPixelForValue(i);
+                    const x = scales.x.getPixelForValue(i+1);
                     const y = scales.y.getPixelForValue(value);
                     const labelValue = chart.data.labels[i];
                     const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
@@ -208,11 +217,12 @@ const cdfChart = new Chart(ctx, {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
 
-                    // Stagger labels vertically to avoid overlap
-                    const textYOffset = 20 + thresholdIdx * 15;
-                    const textY = y - textYOffset;
+                    let textY = y - 20;
+                    if (prevTextBottom !== null && textY + labelHeight > prevTextBottom - minSpacing) {
+                        textY = prevTextBottom - minSpacing - labelHeight;
+                    }
+                    prevTextBottom = textY;
 
-                    // Draw vertical line from point to just below the text
                     ctx.beginPath();
                     ctx.strokeStyle = '#1f4e79';
                     ctx.lineWidth = 2;
@@ -220,19 +230,34 @@ const cdfChart = new Chart(ctx, {
                     ctx.lineTo(x, textY + 5);
                     ctx.stroke();
 
-                    // Draw multiline label
                     label.split('\n').forEach((line, j) => {
                         ctx.fillText(line, x, textY - j * 14);
                     });
+                    
+                    // Get 50% data point coord for dotted line
+                    if (prob === 0.5 && firstAboveHalf === null) {
+                        firstAboveHalf = {x, y};
+                    }
 
                     thresholdIdx++;
                 }
             }
 
+            // Make dotted line
+            if (firstAboveHalf) {
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(firstAboveHalf.x, firstAboveHalf.y);
+                ctx.lineTo(firstAboveHalf.x, scales.y.getPixelForValue(0));
+                ctx.strokeStyle = '#333333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
             ctx.restore();
         }
     }]
-
 
 });
 
