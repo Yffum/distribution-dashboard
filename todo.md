@@ -6,3 +6,4 @@
 - [ ] Plan features
   - [ ] Specialized themes with dropdown menus for specific uses; e.g., Dice:d6/d20, Pokemon:eggs/dynamax
   - [ ] Other distributions?
+- [ ] Update the dot width dynamically based on p; for large p (low max n) show dots, otherwise hide
