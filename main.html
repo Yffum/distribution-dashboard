@@ -107,6 +107,11 @@ const cdfChart = new Chart(ctx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+            padding: {
+                top: 60 // Headroom for labels
+            }
+        },
         plugins: {
             legend: {
                 display: true,
