@@ -54,7 +54,7 @@
 
 <div class="controls">
     <label for="pInput">Success Probability (p):</label>
-    <input type="number" id="pInput" value="0.3" min="0.01" max="1" step="0.01">
+    <input type="number" id="pInput" value="0.01" min="0.01" max="1" step="0.01">
 </div>
 
 <div id="chartContainer">
@@ -83,6 +83,14 @@ function updateChart() {
     const labels = Array.from({length: nMax}, (_, i) => i + 1);
     const data = geometricCDF(p, nMax);
 
+    // Find greatest n where cdf(n) < 0.05
+    let minX = 1;
+    for (let i = 0; i < data.length; i++) {
+        if (data[i] < 0.05) minX = labels[i];
+        else break;
+    }
+
+    cdfChart.options.scales.x.min = minX;
     cdfChart.data.labels = labels;
     cdfChart.data.datasets[0].data = data;
     cdfChart.update();
@@ -109,7 +117,8 @@ const cdfChart = new Chart(ctx, {
         maintainAspectRatio: false,
         layout: {
             padding: {
-                top: 60 // Headroom for labels
+                top: 100, // Headroom for labels
+                right: 50
             }
         },
         plugins: {
@@ -130,13 +139,21 @@ const cdfChart = new Chart(ctx, {
         },
         scales: {
             x: {
+                type: 'logarithmic',
+                min: 5,
                 ticks: {
-                    stepSize: 5,
-                    color: '#333'
+                    color: '#333',
+                    callback: function(value, index, values) {
+                        // Only show integer powers of 10 for clarity
+                        if ([5, 10, 20, 50, 100, 200, 500, 1000].includes(value)) {
+                            return value;
+                        }
+                        return '';
+                    }
                 },
                 title: {
                     display: true,
-                    text: 'Number of Attempts',
+                    text: 'Number of Attempts (log scale)',
                     color: '#333',
                     font: { size: 14, weight: 'bold' }
                 }
@@ -166,37 +183,50 @@ const cdfChart = new Chart(ctx, {
             ctx.save();
             const dataset = data.datasets[0];
 
-            // Find first index where CDF >= 0.65
-            const firstIndex = dataset.data.findIndex(value => value >= 0.65);
+            // List of [threshold, label] tuples
+            const thresholds = [
+                [0.1, 'Very Unlikely'],
+                [0.33, 'Unlikely'],
+                [0.5, 'Even Chance'],
+                [0.66, 'Likely'],
+                [0.9, 'Very Likely'],
+                [0.99, 'Almost Certain']
+            ];
 
-            if (firstIndex !== -1) {
-                const value = dataset.data[firstIndex];
-                const x = scales.x.getPixelForValue(firstIndex);
-                const y = scales.y.getPixelForValue(value);
-                const labelValue = chart.data.labels[firstIndex]; // actual x label (1, 2, 3, …)
-                const label = `(${Math.round(value*100)}%)\nLikely\n${labelValue} Attempts`;
+            let thresholdIdx = 0;
+            for (let i = 0; i < dataset.data.length && thresholdIdx < thresholds.length; i++) {
+                const value = dataset.data[i];
+                const [prob, labelText] = thresholds[thresholdIdx];
+                if (value >= prob) {
+                    const x = scales.x.getPixelForValue(i);
+                    const y = scales.y.getPixelForValue(value);
+                    const labelValue = chart.data.labels[i];
+                    const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
 
-                ctx.fillStyle = '#1f4e79';
-                ctx.font = 'bold 12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
+                    ctx.fillStyle = '#1f4e79';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
 
-                // Where to put the first line of text
-                const textYOffset = 40; // distance above the data point
-                const textY = y - textYOffset;
+                    // Stagger labels vertically to avoid overlap
+                    const textYOffset = 20 + thresholdIdx * 15;
+                    const textY = y - textYOffset;
 
-                // Draw vertical line from point to just below the text
-                ctx.beginPath();
-                ctx.strokeStyle = '#1f4e79';
-                ctx.lineWidth = 2;
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, textY + 5);
-                ctx.stroke();
+                    // Draw vertical line from point to just below the text
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#1f4e79';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, textY + 5);
+                    ctx.stroke();
 
-                // Draw multiline label
-                label.split('\n').forEach((line, i) => {
-                    ctx.fillText(line, x, textY - i * 14);
-                });
+                    // Draw multiline label
+                    label.split('\n').forEach((line, j) => {
+                        ctx.fillText(line, x, textY - j * 14);
+                    });
+
+                    thresholdIdx++;
+                }
             }
 
             ctx.restore();
