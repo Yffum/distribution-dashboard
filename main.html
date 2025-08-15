@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric CDF Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .controls { margin-bottom: 20px; }
+        .controls label { margin-right: 10px; }
+        .description { margin-bottom: 20px; font-style: italic; }
+        #chartContainer { width: 100%; height: 500px; }
+        canvas { width: 100% !important; height: 100% !important; }
+    </style>
+</head>
+<body>
+
+<h2>Geometric CDF Interactive Dashboard</h2>
+<p class="description">This shows how likely it is you will succeed after a certain number of attempts.</p>
+
+<div class="controls">
+    <label for="pInput">Success Probability (p):</label>
+    <input type="number" id="pInput" value="0.3" min="0.01" max="1" step="0.01">
+</div>
+
+<div id="chartContainer">
+    <canvas id="cdfChart"></canvas>
+</div>
+
+<script>
+const ctx = document.getElementById('cdfChart').getContext('2d');
+
+function geometricCDF(p, nMax) {
+    const cdf = [];
+    for (let n = 1; n <= nMax; n++) {
+        cdf.push(1 - Math.pow(1 - p, n));
+    }
+    return cdf;
+}
+
+function computeMaxN(p, threshold=0.99) {
+    return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
+}
+
+function updateChart() {
+    const p = parseFloat(document.getElementById('pInput').value);
+    const nMax = computeMaxN(p);
+
+    const labels = Array.from({length: nMax}, (_, i) => i + 1);
+    const data = geometricCDF(p, nMax);
+
+    cdfChart.data.labels = labels;
+    cdfChart.data.datasets[0].data = data;
+    cdfChart.update();
+}
+
+const cdfChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Geometric CDF',
+            data: [],
+            fill: false,
+            borderColor: 'blue',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                min: 0,
+                max: 1
+            }
+        }
+    }
+});
+
+document.getElementById('pInput').addEventListener('input', updateChart);
+updateChart();
+</script>
+
+</body>
+</html>
