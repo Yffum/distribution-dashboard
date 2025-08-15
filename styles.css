@@ -1,0 +1,63 @@
+:root {
+    --color-primary: #1f4e79;
+    --color-secondary: #f4f6f8;
+    --color-accent-green: rgb(0, 200, 0);
+    --color-accent-red: rgba(200, 0, 0, 0.7);
+    --color-bg-card: #fff;
+    --color-bg-green: rgba(0, 200, 0, 0.15);
+    --color-bg-red: rgba(200, 0, 0, 0.15);
+    --color-text-main: #333;
+    --color-text-muted: #555;
+    --color-certain: rgb(0, 160, 0);       /* dark green */
+    --color-v-likely: rgb(80, 200, 0);     /* light green */
+    --color-likely: rgb(200, 180, 0);      /* darker yellow/gold */
+    --color-even: rgb(255, 140, 0);        /* orange */
+    --color-unlikely: rgb(220, 60, 0);     /* dark orange/red */
+    --color-v-unlikely: rgb(160, 0, 0);    /* red */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-secondary);
+    padding: 40px;
+    color: var(--color-text-main);
+}
+
+h2 {
+    color: var(--color-primary);
+    text-align: center;
+}
+
+.description {
+    margin-bottom: 30px;
+    font-style: italic;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.controls {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.controls label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+input[type=number] {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 80px;
+}
+
+#chartContainer {
+    width: 90%;
+    height: 500px;
+    margin: 0 auto;
+    background-color: var(--color-bg-card);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
