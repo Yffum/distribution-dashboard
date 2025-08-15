@@ -318,17 +318,20 @@ let resizeTimeout;
 function adjustChartForMobile() {
     const canvas = document.getElementById('cdfChart');
     const container = document.getElementById('chartContainer');
-    const isMobile = window.innerWidth <= 750; // Define mobile breakpoint
-    const mobileScale = 1.5
+    const isMobile = window.innerWidth <= 750;
 
+    // Shrink content by scale, and then stretch container by widthScale
     if (isMobile) {
-        container.style.transform = 'scale(0.6)';
-        container.style.width = `${mobileScale*100}%`;
+        const scale = 0.5;
+        const widthScale = 2.2;
+        container.style.transformOrigin = 'top center';
+        const offset = ((widthScale - 1) * 50) / (scale * widthScale);
+        container.style.transform = `scale(${scale}) translateX(-${offset}%)`;
+        container.style.width = `${widthScale*100}%`
     } else {
-        container.style.position = 'relative';
-        container.style.width = `100%`; 
         container.style.transform = 'scale(1)';
-
+        container.style.width = '100%';
+        //container.style.margin = 'auto';
     }
 }
 

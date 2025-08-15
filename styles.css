@@ -56,23 +56,24 @@ input[type=number] {
     width: 90%;
     height: 500px;
     margin: 0 auto;
-    display: flex;
+    display: block;
     background-color: var(--color-bg-card);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     overflow: hidden;
     box-sizing: border-box;
+    transform-origin: top center;
 }
 
 #cdfChart {
-    /* margin: auto; */
     width: 90%;
     height: 500px;
-    display: inline-flex;
+    display: flex;
     box-sizing: content-box;
 }
 
 #chartWrapper { /* parent of container */
-    display: flex;
+    display: block;
+    width: 100%;
 }
