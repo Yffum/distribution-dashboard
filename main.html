@@ -166,10 +166,10 @@ const cdfChart = new Chart(ctx, {
 
             if (firstIndex !== -1) {
                 const value = dataset.data[firstIndex];
-                const labelValue = chart.data.labels[firstIndex]; // actual x label (1, 2, 3, …)
-                const x = scales.x.getPixelForValue(labelValue);
+                const x = scales.x.getPixelForValue(firstIndex);
                 const y = scales.y.getPixelForValue(value);
-                const label = `${labelValue} Attempts\nLikely\n(${Math.round(value*100)}%)`;
+                const labelValue = chart.data.labels[firstIndex]; // actual x label (1, 2, 3, …)
+                const label = `(${Math.round(value*100)}%)\nLikely\n${labelValue} Attempts`;
 
                 ctx.fillStyle = '#1f4e79';
                 ctx.font = 'bold 12px sans-serif';
