@@ -112,6 +112,7 @@ const COLORS = {
 
 const ctx = document.getElementById('cdfChart').getContext('2d');
 
+
 function geometricCDF(p, nMax) {
     const cdf = [];
     for (let n = 1; n <= nMax; n++) {
@@ -120,9 +121,11 @@ function geometricCDF(p, nMax) {
     return cdf;
 }
 
+
 function computeMaxN(p, threshold=0.99) {
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
 }
+
 
 function updateChart() {
     const p = parseFloat(document.getElementById('pInput').value);
@@ -142,6 +145,35 @@ function updateChart() {
     cdfChart.data.datasets[0].data = data;
     cdfChart.update();
 }
+
+
+const topLeftTitlePlugin = {
+    id: 'topLeftTitle',
+    beforeDraw(chart) {
+        const { ctx } = chart;
+        const titlePadding = 25;
+        const subtitleSpacing = 35;
+
+        ctx.save();
+        ctx.font = 'bold 24px sans-serif';
+        ctx.fillStyle = COLORS.textMain;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+
+        ctx.fillText('Geometric CDF Overview', titlePadding*2, titlePadding);
+
+        // --- subtitle ---
+        const p = parseFloat(document.getElementById('pInput').value);
+        if (!isNaN(p) && p > 0) {
+            const mean = (1 / p).toFixed(2); // round to 2 decimals
+            ctx.font = '16px sans-serif';
+            ctx.fillText(`Expected Number of Attempts: ${Math.ceil(mean).toLocaleString()}`, titlePadding*2, titlePadding + subtitleSpacing);
+        }
+        ctx.restore();
+    }
+};
+
+
 
 const partitionPlugin = {
     id: 'partitionPlugin',
@@ -184,12 +216,14 @@ const partitionPlugin = {
     }
 };
 
+
 const customLabelsPlugin = {
     id: 'customLabels',
+
     afterDatasetsDraw(chart) {
         const { ctx, data, scales } = chart;
-        ctx.save();
         const dataset = data.datasets[0];
+        ctx.save();
 
         const thresholds = [
             [0.1, 'Very Unlikely'],
@@ -200,105 +234,98 @@ const customLabelsPlugin = {
             [0.99, 'Almost Certain']
         ];
 
+        // Track label position and index for staggering
         let thresholdIdx = 0;
         let prevTextBottom = null;
         const labelHeight = 14 * 3;
         const minSpacing = 8;
+        const lineBaseHeight = 50;
 
+        // === Helpers ===
+        function getColorForLabel(labelText) {
+            switch (labelText) {
+                case 'Very Unlikely': return COLORS.vUnlikely;
+                case 'Unlikely': return COLORS.unlikely;
+                case 'Even Chance': return COLORS.even;
+                case 'Likely': return COLORS.likely;
+                case 'Very Likely': return COLORS.vLikely;
+                case 'Almost Certain': return COLORS.certain;
+                default: return COLORS.primary;
+            }
+        }
+
+        function drawConnectorLine(x, y, textY) {
+            ctx.beginPath();
+            ctx.strokeStyle = COLORS.primary;
+            ctx.lineWidth = 2;
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, textY + 5);
+            ctx.stroke();
+        }
+
+        function drawLabelText(x, textY, value, labelText, attempts) {
+            const percentLine = `(${Math.round(value * 100)}%)`;
+            const probabilityLine = labelText;
+            const attemptsLine = `${attempts.toLocaleString()} Attempts`;
+
+            const lnSpace = 18;
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            ctx.fillText(probabilityLine, x, textY - lnSpace * 2);
+            ctx.fillText(percentLine, x, textY - lnSpace);
+
+            ctx.fillStyle = COLORS.primary;
+            ctx.fillText(attemptsLine, x, textY);
+        }
+
+        function drawExtraLabel(index, text, color, dx = 0, dy = 0) {
+            if (index === -1) return;
+            const attempts = data.labels[index];
+            const lx = scales.x.getPixelForValue(attempts) + dx;
+            const ly = scales.y.getPixelForValue(0.1) + dy;
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = color;
+            ctx.fillText(text, lx, ly);
+        }
+
+        // === Threshold Labels ===
         for (let i = 0; i < dataset.data.length && thresholdIdx < thresholds.length; i++) {
             const value = dataset.data[i];
             const [prob, labelText] = thresholds[thresholdIdx];
+
             if (value >= prob) {
-                const x = scales.x.getPixelForValue(data.labels ? data.labels[i] : i+1);
+                const x = scales.x.getPixelForValue(data.labels ? data.labels[i] : i + 1);
                 const y = scales.y.getPixelForValue(value);
                 const labelValue = chart.data.labels[i];
 
-                switch (labelText) {
-                    case 'Very Unlikely':
-                        ctx.fillStyle = COLORS.vUnlikely;
-                        break;
-                    case 'Unlikely':
-                        ctx.fillStyle = COLORS.unlikely;
-                        break;
-                    case 'Even Chance':
-                        ctx.fillStyle = COLORS.even;
-                        break;
-                    case 'Likely':
-                        ctx.fillStyle = COLORS.likely;
-                        break;
-                    case 'Very Likely':
-                        ctx.fillStyle = COLORS.vLikely;
-                        break;
-                    case 'Almost Certain':
-                        ctx.fillStyle = COLORS.certain;
-                        break;
-                    default:
-                        ctx.fillStyle = COLORS.primary;
-                }
+                ctx.fillStyle = getColorForLabel(labelText);
 
-                ctx.font = 'bold 12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-
-                let textY = y - 30;
+                // stagger vertically
+                let textY = y - lineBaseHeight;
                 if (prevTextBottom !== null && textY + labelHeight > prevTextBottom - minSpacing) {
                     textY = prevTextBottom - minSpacing - labelHeight;
                 }
                 prevTextBottom = textY;
 
-                ctx.beginPath();
-                ctx.strokeStyle = COLORS.primary;
-                ctx.lineWidth = 2;
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, textY + 5);
-                ctx.stroke();
-
-                // Define each line separately
-                const percentLine = `(${Math.round(value * 100)}%)`;
-                const probabilityLine = labelText;
-                const attemptsLine = `${labelValue.toLocaleString()} Attempts`;
-                const lnSpace = 18;
-
-                // Draw the percent and probability lines above the marker
-                ctx.fillText(percentLine, x, textY - lnSpace);
-                ctx.fillText(probabilityLine, x, textY - lnSpace * 2);
-
-                // Draw the attempts line below the marker
-                ctx.fillStyle = COLORS.primary;
-                ctx.fillText(attemptsLine, x, textY);
-
-
+                drawConnectorLine(x, y, textY);
+                drawLabelText(x, textY, value, labelText, labelValue);
 
                 thresholdIdx++;
             }
         }
 
-        // Lucky & Unlucky Labels
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        let luckyIndex = dataset.data.findIndex(v => v >= 0.3);
-        if (luckyIndex !== -1) {
-            const luckyAttempts = data.labels[luckyIndex];
-            const luckyX = scales.x.getPixelForValue(luckyAttempts);
-            const luckyY = scales.y.getPixelForValue(0.1);
-            ctx.fillStyle = COLORS.accentGreen;
-            ctx.fillText('Lucky', luckyX, luckyY);
-        }
-
-        let unluckyIndex = dataset.data.findIndex(v => v >= 0.7);
-        if (unluckyIndex !== -1) {
-            const unluckyAttempts = data.labels[unluckyIndex];
-            const unluckyX = scales.x.getPixelForValue(unluckyAttempts) + 10;
-            const unluckyY = scales.y.getPixelForValue(0.1);
-            ctx.fillStyle = COLORS.accentRed;
-            ctx.fillText('Unlucky', unluckyX, unluckyY);
-        }
+        // === Lucky & Unlucky Labels ===
+        drawExtraLabel(dataset.data.findIndex(v => v >= 0.3), 'Lucky', COLORS.accentGreen);
+        drawExtraLabel(dataset.data.findIndex(v => v >= 0.7), 'Unlucky', COLORS.accentRed, 10);
 
         ctx.restore();
     }
 };
+
 
 const cdfChart = new Chart(ctx, {
     type: 'line',
@@ -328,6 +355,17 @@ const cdfChart = new Chart(ctx, {
                         return (context.parsed.y * 100).toFixed(1) + '%';
                     }
                 }
+            },
+            title: {
+                display: false,
+                text: 'Geometric CDF Overview',
+                align: 'start',         // left align
+                color: COLORS.textMain,
+                font: {
+                    size: 18,
+                    weight: 'bold'
+                },
+                padding: { top: 10, bottom: 20 }
             }
         },
         scales: {
@@ -358,8 +396,9 @@ const cdfChart = new Chart(ctx, {
             }
         }
     },
-    plugins: [partitionPlugin, customLabelsPlugin]
+    plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
+
 
 document.getElementById('pInput').addEventListener('input', updateChart);
 updateChart();
