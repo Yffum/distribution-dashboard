@@ -9,13 +9,19 @@
         :root {
             --color-primary: #1f4e79;
             --color-secondary: #f4f6f8;
-            --color-accent-green: #00cf62;
-            --color-accent-red: #ff1e1e;
+            --color-accent-green: rgb(0, 200, 0);
+            --color-accent-red: rgba(200, 0, 0, 0.7);
             --color-bg-card: #fff;
             --color-bg-green: rgba(0, 200, 0, 0.15);
             --color-bg-red: rgba(200, 0, 0, 0.15);
             --color-text-main: #333;
             --color-text-muted: #555;
+            --color-certain: rgb(0, 160, 0);       /* dark green */
+            --color-v-likely: rgb(80, 200, 0);     /* light green */
+            --color-likely: rgb(200, 180, 0);      /* darker yellow/gold */
+            --color-even: rgb(255, 140, 0);        /* orange */
+            --color-unlikely: rgb(220, 60, 0);     /* dark orange/red */
+            --color-v-unlikely: rgb(160, 0, 0);    /* red */
         }
 
         body {
@@ -55,8 +61,8 @@
         }
 
         #chartContainer {
-            width: 80%;
-            height: 400px;
+            width: 90%;
+            height: 500px;
             margin: 0 auto;
             background-color: var(--color-bg-card);
             padding: 20px;
@@ -72,7 +78,7 @@
 
 <div class="controls">
     <label for="pInput">Success Probability (p):</label>
-    <input type="number" id="pInput" value="0.01" min="0.01" max="1" step="0.01">
+    <input type="number" id="pInput" value="0.0001" min="0.01" max="1" step="0.01">
 </div>
 
 <div id="chartContainer">
@@ -80,17 +86,29 @@
 </div>
 
 <script>
+function getCssColor(varName) {
+    return getComputedStyle(document.documentElement)
+           .getPropertyValue(varName).trim();
+}
+
 const COLORS = {
-    primary: '#1f4e79',
-    secondary: '#f4f6f8',
-    accentGreen: '#00cf62',
-    accentRed: '#ff1e1e',
-    bgCard: '#fff',
-    bgGreen: 'rgba(0,200,0,0.15)',
-    bgRed: 'rgba(200,0,0,0.15)',
-    textMain: '#333',
-    textMuted: '#555'
+    primary: getCssColor('--color-primary'),
+    secondary: getCssColor('--color-secondary'),
+    accentGreen: getCssColor('--color-accent-green'),
+    accentRed: getCssColor('--color-accent-red'),
+    bgCard: getCssColor('--color-bg-card'),
+    bgGreen: getCssColor('--color-bg-green'),
+    bgRed: getCssColor('--color-bg-red'),
+    textMain: getCssColor('--color-text-main'),
+    textMuted: getCssColor('--color-text-muted'),
+    vUnlikely: getCssColor('--color-v-unlikely'),
+    unlikely: getCssColor('--color-unlikely'),
+    even: getCssColor('--color-even'),
+    likely: getCssColor('--color-likely'),
+    vLikely: getCssColor('--color-v-likely'),
+    certain: getCssColor('--color-certain')
 };
+
 
 const ctx = document.getElementById('cdfChart').getContext('2d');
 
@@ -196,12 +214,34 @@ const customLabelsPlugin = {
                 const labelValue = chart.data.labels[i];
                 const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
 
-                ctx.fillStyle = COLORS.primary;
+                switch (labelText) {
+                    case 'Very Unlikely':
+                        ctx.fillStyle = COLORS.vUnlikely;
+                        break;
+                    case 'Unlikely':
+                        ctx.fillStyle = COLORS.unlikely;
+                        break;
+                    case 'Even Chance':
+                        ctx.fillStyle = COLORS.even;
+                        break;
+                    case 'Likely':
+                        ctx.fillStyle = COLORS.likely;
+                        break;
+                    case 'Very Likely':
+                        ctx.fillStyle = COLORS.vLikely;
+                        break;
+                    case 'Almost Certain':
+                        ctx.fillStyle = COLORS.certain;
+                        break;
+                    default:
+                        ctx.fillStyle = COLORS.primary;
+                }
+
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
 
-                let textY = y - 20;
+                let textY = y - 30;
                 if (prevTextBottom !== null && textY + labelHeight > prevTextBottom - minSpacing) {
                     textY = prevTextBottom - minSpacing - labelHeight;
                 }
@@ -214,16 +254,27 @@ const customLabelsPlugin = {
                 ctx.lineTo(x, textY + 5);
                 ctx.stroke();
 
-                label.split('\n').forEach((line, j) => {
-                    ctx.fillText(line, x, textY - j * 14);
-                });
+                // Define each line separately
+                const percentLine = `(${Math.round(value * 100)}%)`;
+                const probabilityLine = labelText;
+                const attemptsLine = `${labelValue} Attempts`;
+                const lnSpace = 18;
+
+                // Draw the percent and probability lines above the marker
+                ctx.fillText(percentLine, x, textY - lnSpace);
+                ctx.fillText(probabilityLine, x, textY - lnSpace * 2);
+
+                // Draw the attempts line below the marker
+                ctx.fillStyle = COLORS.primary;
+                ctx.fillText(attemptsLine, x, textY);
+
+
 
                 thresholdIdx++;
             }
         }
 
         // Lucky & Unlucky Labels
-        ctx.fillStyle = COLORS.accentGreen;
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -233,6 +284,7 @@ const customLabelsPlugin = {
             const luckyAttempts = data.labels[luckyIndex];
             const luckyX = scales.x.getPixelForValue(luckyAttempts);
             const luckyY = scales.y.getPixelForValue(0.1);
+            ctx.fillStyle = COLORS.accentGreen;
             ctx.fillText('Lucky', luckyX, luckyY);
         }
 
@@ -286,7 +338,7 @@ const cdfChart = new Chart(ctx, {
                 ticks: { color: COLORS.textMain },
                 title: {
                     display: true,
-                    text: 'Number of Attempts (log scale)',
+                    text: 'Number of Attempts',
                     color: COLORS.textMain,
                     font: { size: 14, weight: 'bold' }
                 }
