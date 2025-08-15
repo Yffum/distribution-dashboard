@@ -83,7 +83,6 @@ function updateChart() {
     const labels = Array.from({length: nMax}, (_, i) => i + 1);
     const data = geometricCDF(p, nMax);
 
-    // Find greatest n where cdf(n) < 0.05
     let minX = 1;
     for (let i = 0; i < data.length; i++) {
         if (data[i] < 0.05) minX = labels[i];
@@ -96,6 +95,142 @@ function updateChart() {
     cdfChart.update();
 }
 
+const partitionPlugin = {
+    id: 'partitionPlugin',
+    beforeDatasetsDraw(chart) {
+        const {ctx, chartArea: {top, bottom}, scales} = chart;
+        const dataset = chart.data.datasets[0];
+        const labels = chart.data.labels;
+        const data = dataset.data;
+
+        // Current min x value from updateChart()
+        const minXValue = chart.options.scales.x.min ?? labels[0];
+
+        // Find index of first label >= minXValue
+        let startIndex = labels.findIndex(v => v >= minXValue);
+        if (startIndex === -1) startIndex = 0;
+
+        // Find cutoff index where CDF >= 0.5
+        let cutoffIndex = data.findIndex(v => v >= 0.5);
+        if (cutoffIndex === -1) cutoffIndex = data.length - 1;
+
+        // Make sure cutoffIndex respects visible start
+        cutoffIndex = Math.max(cutoffIndex, startIndex);
+
+        function drawArea(color, startIdx, endIdx) {
+            if (startIdx >= endIdx) return;
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(scales.x.getPixelForValue(labels[startIdx]), scales.y.getPixelForValue(0));
+            for (let i = startIdx; i <= endIdx; i++) {
+                const x = scales.x.getPixelForValue(labels[i]);
+                const y = scales.y.getPixelForValue(data[i]);
+                ctx.lineTo(x, y);
+            }
+            const lastX = scales.x.getPixelForValue(labels[endIdx]);
+            ctx.lineTo(lastX, scales.y.getPixelForValue(0));
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Green region (from visible min → cutoff)
+        drawArea('rgba(0,200,0,0.15)', startIndex, cutoffIndex);
+
+        // Red region (cutoff → end)
+        if (cutoffIndex < data.length - 1) {
+            drawArea('rgba(200,0,0,0.15)', cutoffIndex, data.length - 1);
+        }
+    }
+};
+
+const customLabelsPlugin = {
+    id: 'customLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx, data, scales } = chart;
+        ctx.save();
+        const dataset = data.datasets[0];
+
+        const thresholds = [
+            [0.1, 'Very Unlikely'],
+            [0.3, 'Unlikely'],
+            [0.5, 'Even Chance'],
+            [0.7, 'Likely'],
+            [0.9, 'Very Likely'],
+            [0.99, 'Almost Certain']
+        ];
+
+        let thresholdIdx = 0;
+        let prevTextBottom = null;
+        const labelHeight = 14 * 3;
+        const minSpacing = 8;
+
+        for (let i = 0; i < dataset.data.length && thresholdIdx < thresholds.length; i++) {
+            const value = dataset.data[i];
+            const [prob, labelText] = thresholds[thresholdIdx];
+            if (value >= prob) {
+                const x = scales.x.getPixelForValue(data.labels ? data.labels[i] : i+1);
+                const y = scales.y.getPixelForValue(value);
+                const labelValue = chart.data.labels[i];
+                const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
+
+                ctx.fillStyle = '#1f4e79';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                let textY = y - 20;
+                if (prevTextBottom !== null && textY + labelHeight > prevTextBottom - minSpacing) {
+                    textY = prevTextBottom - minSpacing - labelHeight;
+                }
+                prevTextBottom = textY;
+
+                ctx.beginPath();
+                ctx.strokeStyle = '#1f4e79';
+                ctx.lineWidth = 2;
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, textY + 5);
+                ctx.stroke();
+
+                label.split('\n').forEach((line, j) => {
+                    ctx.fillText(line, x, textY - j * 14);
+                });
+
+                thresholdIdx++;
+            }
+        }
+
+        // --- Add Lucky & Unlucky Labels at y=0.1 ---
+        ctx.fillStyle = '#e67e22';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Find attempt count where CDF >= 0.3
+        let luckyIndex = dataset.data.findIndex(v => v >= 0.3);
+        if (luckyIndex !== -1) {
+            const luckyAttempts = data.labels[luckyIndex];
+            const luckyX = scales.x.getPixelForValue(luckyAttempts);
+            const luckyY = scales.y.getPixelForValue(0.1);
+            ctx.fillStyle = '#00cf62'; // dark green
+            ctx.fillText('Lucky', luckyX, luckyY);
+        }
+
+        // Find attempt count where CDF >= 0.7
+        let unluckyIndex = dataset.data.findIndex(v => v >= 0.7);
+        if (unluckyIndex !== -1) {
+            const unluckyAttempts = data.labels[unluckyIndex];
+            const unluckyX = scales.x.getPixelForValue(unluckyAttempts) + 10;
+            const unluckyY = scales.y.getPixelForValue(0.1);
+            ctx.fillStyle = '#ff1e1e'; // dark red
+            ctx.fillText('Unlucky', unluckyX, unluckyY);
+        }
+
+        ctx.restore();
+    }
+};
+
 const cdfChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -103,8 +238,7 @@ const cdfChart = new Chart(ctx, {
         datasets: [{
             label: 'Geometric CDF',
             data: [],
-            fill: true,
-            backgroundColor: 'rgba(31, 78, 121, 0.1)',
+            fill: false,
             borderColor: '#1f4e79',
             borderWidth: 2,
             tension: 0,
@@ -117,19 +251,10 @@ const cdfChart = new Chart(ctx, {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-            padding: {
-                top: 120, // Headroom for labels
-                right: 50
-            }
+            padding: { top: 120, right: 50 }
         },
         plugins: {
-            legend: {
-                display: false,
-                labels: {
-                    color: '#333',
-                    font: { size: 14 }
-                }
-            },
+            legend: { display: false },
             tooltip: {
                 callbacks: {
                     label: function(context) {
@@ -143,16 +268,7 @@ const cdfChart = new Chart(ctx, {
                 type: 'logarithmic',
                 min: 5,
                 ticks: {
-                    color: '#333',
-                    callback: function(value, index, values) {
-                        if ([5, 10, 20, 50, 100, 200, 500, 1000].includes(value)) {
-                            return value;
-                        }
-                        return '';
-                    }
-                },
-                grid: {
-                    drawTicks: true
+                    color: '#333'
                 },
                 title: {
                     display: true,
@@ -179,86 +295,7 @@ const cdfChart = new Chart(ctx, {
             }
         }
     },
-    plugins: [{
-        id: 'customLabels',
-        afterDatasetsDraw(chart) {
-            const { ctx, data, scales } = chart;
-            ctx.save();
-            const dataset = data.datasets[0];
-
-            // List of [threshold, label] tuples
-            const thresholds = [
-                [0.1, 'Very Unlikely'],
-                [0.3, 'Unlikely'],
-                [0.5, 'Even Chance'],
-                [0.7, 'Likely'],
-                [0.9, 'Very Likely'],
-                [0.99, 'Almost Certain']
-            ];
-
-            let thresholdIdx = 0;
-            let prevTextBottom = null;
-            const labelHeight = 14 * 3;
-            const minSpacing = 8;
-
-            let firstAboveHalf = null;
-
-            for (let i = 0; i < dataset.data.length && thresholdIdx < thresholds.length; i++) {
-                const value = dataset.data[i];
-                const [prob, labelText] = thresholds[thresholdIdx];
-                if (value >= prob) {
-                    const x = scales.x.getPixelForValue(i+1);
-                    const y = scales.y.getPixelForValue(value);
-                    const labelValue = chart.data.labels[i];
-                    const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
-
-                    ctx.fillStyle = '#1f4e79';
-                    ctx.font = 'bold 12px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'bottom';
-
-                    let textY = y - 20;
-                    if (prevTextBottom !== null && textY + labelHeight > prevTextBottom - minSpacing) {
-                        textY = prevTextBottom - minSpacing - labelHeight;
-                    }
-                    prevTextBottom = textY;
-
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#1f4e79';
-                    ctx.lineWidth = 2;
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x, textY + 5);
-                    ctx.stroke();
-
-                    label.split('\n').forEach((line, j) => {
-                        ctx.fillText(line, x, textY - j * 14);
-                    });
-                    
-                    // Get 50% data point coord for dotted line
-                    if (prob === 0.5 && firstAboveHalf === null) {
-                        firstAboveHalf = {x, y};
-                    }
-
-                    thresholdIdx++;
-                }
-            }
-
-            // Make dotted line
-            if (firstAboveHalf) {
-                ctx.beginPath();
-                ctx.setLineDash([5, 5]);
-                ctx.moveTo(firstAboveHalf.x, firstAboveHalf.y);
-                ctx.lineTo(firstAboveHalf.x, scales.y.getPixelForValue(0));
-                ctx.strokeStyle = '#333333';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-
-            ctx.restore();
-        }
-    }]
-
+    plugins: [partitionPlugin, customLabelsPlugin]
 });
 
 document.getElementById('pInput').addEventListener('input', updateChart);
