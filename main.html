@@ -257,7 +257,7 @@ const customLabelsPlugin = {
                 // Define each line separately
                 const percentLine = `(${Math.round(value * 100)}%)`;
                 const probabilityLine = labelText;
-                const attemptsLine = `${labelValue} Attempts`;
+                const attemptsLine = `${labelValue.toLocaleString()} Attempts`;
                 const lnSpace = 18;
 
                 // Draw the percent and probability lines above the marker
