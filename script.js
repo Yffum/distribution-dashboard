@@ -323,17 +323,12 @@ function adjustChartForMobile() {
 
     if (isMobile) {
         container.style.transform = 'scale(0.6)';
-        container.style.position = 'relative';
-        container.style.left = `${-100*.4/mobileScale}%`;
-        container.style.width = `${mobileScale*100}%`; //'200%';
+        container.style.width = `${mobileScale*100}%`;
     } else {
         container.style.position = 'relative';
-        container.style.left = `0%`;
-        container.style.width = `100%`; //'200%';
-        container.style.transform = 'scale(1)'; // Reset scaling for larger screens
-        //container.style.margin = "auto";
-        // container.style.width = `${mobileScale*100}%`; //'200%';
-        // container.style.width = '100%';
+        container.style.width = `100%`; 
+        container.style.transform = 'scale(1)';
+
     }
 }
 

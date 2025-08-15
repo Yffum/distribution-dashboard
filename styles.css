@@ -72,3 +72,7 @@ input[type=number] {
     display: inline-flex;
     box-sizing: content-box;
 }
+
+#chartWrapper { /* parent of container */
+    display: flex;
+}
