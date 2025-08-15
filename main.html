@@ -6,41 +6,59 @@
     <title>Geometric CDF Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --color-primary: #1f4e79;
+            --color-secondary: #f4f6f8;
+            --color-accent-green: #00cf62;
+            --color-accent-red: #ff1e1e;
+            --color-bg-card: #fff;
+            --color-bg-green: rgba(0, 200, 0, 0.15);
+            --color-bg-red: rgba(200, 0, 0, 0.15);
+            --color-text-main: #333;
+            --color-text-muted: #555;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
+            background-color: var(--color-secondary);
             padding: 40px;
-            color: #333;
+            color: var(--color-text-main);
         }
+
         h2 {
-            color: #1f4e79;
+            color: var(--color-primary);
             text-align: center;
         }
+
         .description {
             margin-bottom: 30px;
             font-style: italic;
             text-align: center;
-            color: #555;
+            color: var(--color-text-muted);
         }
+
         .controls {
             text-align: center;
             margin-bottom: 40px;
         }
+
         .controls label {
             margin-right: 10px;
             font-weight: bold;
         }
+
         input[type=number] {
             padding: 5px 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             width: 80px;
         }
+
         #chartContainer {
             width: 80%;
             height: 400px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: var(--color-bg-card);
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -62,6 +80,18 @@
 </div>
 
 <script>
+const COLORS = {
+    primary: '#1f4e79',
+    secondary: '#f4f6f8',
+    accentGreen: '#00cf62',
+    accentRed: '#ff1e1e',
+    bgCard: '#fff',
+    bgGreen: 'rgba(0,200,0,0.15)',
+    bgRed: 'rgba(200,0,0,0.15)',
+    textMain: '#333',
+    textMuted: '#555'
+};
+
 const ctx = document.getElementById('cdfChart').getContext('2d');
 
 function geometricCDF(p, nMax) {
@@ -103,18 +133,12 @@ const partitionPlugin = {
         const labels = chart.data.labels;
         const data = dataset.data;
 
-        // Current min x value from updateChart()
         const minXValue = chart.options.scales.x.min ?? labels[0];
-
-        // Find index of first label >= minXValue
         let startIndex = labels.findIndex(v => v >= minXValue);
         if (startIndex === -1) startIndex = 0;
 
-        // Find cutoff index where CDF >= 0.5
         let cutoffIndex = data.findIndex(v => v >= 0.5);
         if (cutoffIndex === -1) cutoffIndex = data.length - 1;
-
-        // Make sure cutoffIndex respects visible start
         cutoffIndex = Math.max(cutoffIndex, startIndex);
 
         function drawArea(color, startIdx, endIdx) {
@@ -135,12 +159,9 @@ const partitionPlugin = {
             ctx.restore();
         }
 
-        // Green region (from visible min → cutoff)
-        drawArea('rgba(0,200,0,0.15)', startIndex, cutoffIndex);
-
-        // Red region (cutoff → end)
+        drawArea(COLORS.bgGreen, startIndex, cutoffIndex);
         if (cutoffIndex < data.length - 1) {
-            drawArea('rgba(200,0,0,0.15)', cutoffIndex, data.length - 1);
+            drawArea(COLORS.bgRed, cutoffIndex, data.length - 1);
         }
     }
 };
@@ -175,7 +196,7 @@ const customLabelsPlugin = {
                 const labelValue = chart.data.labels[i];
                 const label = `(${Math.round(value*100)}%)\n${labelText}\n${labelValue} Attempts`;
 
-                ctx.fillStyle = '#1f4e79';
+                ctx.fillStyle = COLORS.primary;
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
@@ -187,7 +208,7 @@ const customLabelsPlugin = {
                 prevTextBottom = textY;
 
                 ctx.beginPath();
-                ctx.strokeStyle = '#1f4e79';
+                ctx.strokeStyle = COLORS.primary;
                 ctx.lineWidth = 2;
                 ctx.moveTo(x, y);
                 ctx.lineTo(x, textY + 5);
@@ -201,29 +222,26 @@ const customLabelsPlugin = {
             }
         }
 
-        // --- Add Lucky & Unlucky Labels at y=0.1 ---
-        ctx.fillStyle = '#e67e22';
+        // Lucky & Unlucky Labels
+        ctx.fillStyle = COLORS.accentGreen;
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Find attempt count where CDF >= 0.3
         let luckyIndex = dataset.data.findIndex(v => v >= 0.3);
         if (luckyIndex !== -1) {
             const luckyAttempts = data.labels[luckyIndex];
             const luckyX = scales.x.getPixelForValue(luckyAttempts);
             const luckyY = scales.y.getPixelForValue(0.1);
-            ctx.fillStyle = '#00cf62'; // dark green
             ctx.fillText('Lucky', luckyX, luckyY);
         }
 
-        // Find attempt count where CDF >= 0.7
         let unluckyIndex = dataset.data.findIndex(v => v >= 0.7);
         if (unluckyIndex !== -1) {
             const unluckyAttempts = data.labels[unluckyIndex];
             const unluckyX = scales.x.getPixelForValue(unluckyAttempts) + 10;
             const unluckyY = scales.y.getPixelForValue(0.1);
-            ctx.fillStyle = '#ff1e1e'; // dark red
+            ctx.fillStyle = COLORS.accentRed;
             ctx.fillText('Unlucky', unluckyX, unluckyY);
         }
 
@@ -239,10 +257,10 @@ const cdfChart = new Chart(ctx, {
             label: 'Geometric CDF',
             data: [],
             fill: false,
-            borderColor: '#1f4e79',
+            borderColor: COLORS.primary,
             borderWidth: 2,
             tension: 0,
-            pointBackgroundColor: '#1f4e79',
+            pointBackgroundColor: COLORS.primary,
             pointRadius: 0,
             pointHoverRadius: 0
         }]
@@ -250,9 +268,7 @@ const cdfChart = new Chart(ctx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-            padding: { top: 120, right: 50 }
-        },
+        layout: { padding: { top: 120, right: 50 } },
         plugins: {
             legend: { display: false },
             tooltip: {
@@ -267,13 +283,11 @@ const cdfChart = new Chart(ctx, {
             x: {
                 type: 'logarithmic',
                 min: 5,
-                ticks: {
-                    color: '#333'
-                },
+                ticks: { color: COLORS.textMain },
                 title: {
                     display: true,
                     text: 'Number of Attempts (log scale)',
-                    color: '#333',
+                    color: COLORS.textMain,
                     font: { size: 14, weight: 'bold' }
                 }
             },
@@ -281,15 +295,13 @@ const cdfChart = new Chart(ctx, {
                 min: 0,
                 max: 1,
                 ticks: {
-                    callback: function(value) {
-                        return (value * 100).toFixed(0) + '%';
-                    },
-                    color: '#333'
+                    callback: v => (v*100).toFixed(0) + '%',
+                    color: COLORS.textMain
                 },
                 title: {
                     display: true,
                     text: 'Probability of Success',
-                    color: '#333',
+                    color: COLORS.textMain,
                     font: { size: 14, weight: 'bold' }
                 }
             }
