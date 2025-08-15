@@ -1,3 +1,6 @@
+const pInput = document.getElementById('pInput');
+const ctx = document.getElementById('cdfChart').getContext('2d');
+
 function getCssColor(varName) {
     return getComputedStyle(document.documentElement)
            .getPropertyValue(varName).trim();
@@ -21,8 +24,6 @@ const COLORS = {
     certain: getCssColor('--color-certain')
 };
 
-const ctx = document.getElementById('cdfChart').getContext('2d');
-
 function geometricCDF(p, nMax) {
     const cdf = [];
     for (let n = 1; n <= nMax; n++) {
@@ -32,41 +33,65 @@ function geometricCDF(p, nMax) {
 }
 
 function computeMaxN(p, threshold=0.99) {
+    // Returns the first value at which the function evaluates to .99
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
 }
 
 function updateChart() {
-    let pInput = document.getElementById('pInput');
+    // Get p input
     let p = parseFloat(pInput.value);
 
     // Clamp p to allowed range
-    if (p > 0 && p < 0.0001) p = 0.0001;
-    if (p > 0.1) p = 0.1;
-    if (parseFloat(pInput.value) != p) {
-        pInput.value = p;
+    if (p != 0) {
+        p = Math.max(0.0001, Math.min(p, 0.1));
+        if (parseFloat(pInput.value) != p) {
+            pInput.value = p;
+        }
     }
 
+    // Set max n to first value at which cdf >= 99%
     const nMax = computeMaxN(p);
+
+    // Calculate data
     const labels = Array.from({length: nMax}, (_, i) => i + 1);
     const data = geometricCDF(p, nMax);
 
+    // Set min to first value at which cdf >= 5%
     let minX = 1;
     for (let i = 0; i < data.length; i++) {
         if (data[i] < 0.05) minX = labels[i];
         else break;
     }
 
+    // Set chart
     cdfChart.options.scales.x.min = minX;
     cdfChart.data.labels = labels;
     cdfChart.data.datasets[0].data = data;
     cdfChart.update();
 }
 
+function adjustChartForMobile() {
+    const container = document.getElementById('chartContainer');
+    const isMobile = window.innerWidth <= 750;
+
+    // Shrink content by scale, and then stretch container by widthScale
+    const scale = 0.5;
+    const widthScale = 2.2;
+    if (isMobile) {
+        const offset = ((widthScale - 1) * 50) / (scale * widthScale);
+        container.style.transform = `scale(${scale}) translateX(-${offset}%)`;
+        container.style.width = `${widthScale*100}%`
+    } else {
+        container.style.transform = 'scale(1)';
+        container.style.width = '100%';
+    }
+}
+
 const topLeftTitlePlugin = {
     id: 'topLeftTitle',
     beforeDraw(chart) {
         const { ctx } = chart;
-        const p = parseFloat(document.getElementById('pInput').value);
+        const p = parseFloat(pInput.value);
         const titlePadding = 25;
         const subtitleSpacing = 35;
 
@@ -76,13 +101,21 @@ const topLeftTitlePlugin = {
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
-        ctx.fillText(`Geometric CDF for p = ${p}`, titlePadding*2, titlePadding);
+        // Title
+        ctx.fillText(
+            `Geometric CDF for p = ${p}`, 
+            titlePadding*2, 
+            titlePadding);
 
-        // --- subtitle ---
+        // Subtitle
         if (!isNaN(p) && p > 0) {
             const mean = Math.round(1 / p); // round to 2 decimals
             ctx.font = '16px sans-serif';
-            ctx.fillText(`Expected Number of Attempts: ${mean.toLocaleString()}`, titlePadding*2, titlePadding + subtitleSpacing);
+            ctx.fillText(
+                `Expected Number of Attempts: ${mean.toLocaleString()}`, 
+                titlePadding*2, 
+                titlePadding + subtitleSpacing
+            );
         }
         ctx.restore();
     }
@@ -310,31 +343,8 @@ const cdfChart = new Chart(ctx, {
     plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
 
-document.getElementById('pInput').addEventListener('input', updateChart);
-updateChart();
-
-let resizeTimeout;
-
-function adjustChartForMobile() {
-    const canvas = document.getElementById('cdfChart');
-    const container = document.getElementById('chartContainer');
-    const isMobile = window.innerWidth <= 750;
-
-    // Shrink content by scale, and then stretch container by widthScale
-    if (isMobile) {
-        const scale = 0.5;
-        const widthScale = 2.2;
-        container.style.transformOrigin = 'top center';
-        const offset = ((widthScale - 1) * 50) / (scale * widthScale);
-        container.style.transform = `scale(${scale}) translateX(-${offset}%)`;
-        container.style.width = `${widthScale*100}%`
-    } else {
-        container.style.transform = 'scale(1)';
-        container.style.width = '100%';
-        //container.style.margin = 'auto';
-    }
-}
-
-// Adjust chart on load and resize
+pInput.addEventListener('input', updateChart);
 window.addEventListener('resize', adjustChartForMobile);
+
+updateChart();
 adjustChartForMobile();
