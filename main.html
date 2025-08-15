@@ -73,12 +73,12 @@
 </head>
 <body>
 
-<h2>Geometric CDF Interactive Dashboard</h2>
-<p class="description">Visualizing the probability of success over multiple attempts.</p>
+<h2>Geometric CDF</h2>
+<p class="description">Visualizing the probability of success over repeated Bernoulli trials.</p>
 
 <div class="controls">
     <label for="pInput">Success Probability (p):</label>
-    <input type="number" id="pInput" value="0.0001" min="0.01" max="1" step="0.01">
+    <input type="number" id="pInput" value="0.01" min="0.0001" max="0.05" step="0.0001">
 </div>
 
 <div id="chartContainer">
@@ -151,6 +151,7 @@ const topLeftTitlePlugin = {
     id: 'topLeftTitle',
     beforeDraw(chart) {
         const { ctx } = chart;
+        const p = parseFloat(document.getElementById('pInput').value);
         const titlePadding = 25;
         const subtitleSpacing = 35;
 
@@ -160,14 +161,13 @@ const topLeftTitlePlugin = {
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
-        ctx.fillText('Geometric CDF Overview', titlePadding*2, titlePadding);
+        ctx.fillText(`Geometric CDF for p = ${p}`, titlePadding*2, titlePadding);
 
         // --- subtitle ---
-        const p = parseFloat(document.getElementById('pInput').value);
         if (!isNaN(p) && p > 0) {
-            const mean = (1 / p).toFixed(2); // round to 2 decimals
+            const mean = Math.round(1 / p); // round to 2 decimals
             ctx.font = '16px sans-serif';
-            ctx.fillText(`Expected Number of Attempts: ${Math.ceil(mean).toLocaleString()}`, titlePadding*2, titlePadding + subtitleSpacing);
+            ctx.fillText(`Expected Number of Attempts: ${mean.toLocaleString()}`, titlePadding*2, titlePadding + subtitleSpacing);
         }
         ctx.restore();
     }
@@ -377,7 +377,7 @@ const cdfChart = new Chart(ctx, {
                     display: true,
                     text: 'Number of Attempts',
                     color: COLORS.textMain,
-                    font: { size: 14, weight: 'bold' }
+                    font: { size: 16, weight: 'bold' }
                 }
             },
             y: {
@@ -391,7 +391,7 @@ const cdfChart = new Chart(ctx, {
                     display: true,
                     text: 'Probability of Success',
                     color: COLORS.textMain,
-                    font: { size: 14, weight: 'bold' }
+                    font: { size: 16, weight: 'bold' }
                 }
             }
         }
