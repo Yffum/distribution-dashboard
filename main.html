@@ -101,7 +101,7 @@ const cdfChart = new Chart(ctx, {
             borderWidth: 2,
             tension: 0.3,
             pointBackgroundColor: '#1f4e79',
-            pointRadius: 4
+            pointRadius: 0.2
         }]
     },
     options: {
@@ -153,7 +153,52 @@ const cdfChart = new Chart(ctx, {
                 }
             }
         }
-    }
+    },
+    plugins: [{
+        id: 'customLabels',
+        afterDatasetsDraw(chart) {
+            const { ctx, data, scales } = chart;
+            ctx.save();
+            const dataset = data.datasets[0];
+
+            // Find first index where CDF >= 0.65
+            const firstIndex = dataset.data.findIndex(value => value >= 0.65);
+
+            if (firstIndex !== -1) {
+                const value = dataset.data[firstIndex];
+                const labelValue = chart.data.labels[firstIndex]; // actual x label (1, 2, 3, …)
+                const x = scales.x.getPixelForValue(labelValue);
+                const y = scales.y.getPixelForValue(value);
+                const label = `${labelValue} Attempts\nLikely\n(${Math.round(value*100)}%)`;
+
+                ctx.fillStyle = '#1f4e79';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                // Where to put the first line of text
+                const textYOffset = 40; // distance above the data point
+                const textY = y - textYOffset;
+
+                // Draw vertical line from point to just below the text
+                ctx.beginPath();
+                ctx.strokeStyle = '#1f4e79';
+                ctx.lineWidth = 2;
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, textY + 5);
+                ctx.stroke();
+
+                // Draw multiline label
+                label.split('\n').forEach((line, i) => {
+                    ctx.fillText(line, x, textY - i * 14);
+                });
+            }
+
+            ctx.restore();
+        }
+    }]
+
+
 });
 
 document.getElementById('pInput').addEventListener('input', updateChart);
