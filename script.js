@@ -48,6 +48,8 @@ const shinyRates = {
     }
 }
 
+const chartTopPadding = 150;
+
 function toTitleCase(str) {
   return str
     .toLowerCase()               // make everything lowercase first
@@ -389,7 +391,7 @@ const cdfChart = new Chart(ctx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 120, right: 50 } },
+        layout: { padding: { top: chartTopPadding, right: 50 } },
         plugins: {
             legend: { display: false },
             tooltip: {
