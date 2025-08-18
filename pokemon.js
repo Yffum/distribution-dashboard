@@ -1,0 +1,52 @@
+const rateSelect = document.getElementById('pokemon-select');
+
+const shinyRates = {
+    "baseRateGen6": {
+        "name": "Base Rate (Gen 6+)",
+        "probability": "1/4096"
+    },
+    "baseRateGen2": {
+        "name": "Base Rate (Gen 2-5)",
+        "probability": "1/8192"
+    },
+    "masudaMethodGen6": {
+        "name": "Masuda Method (Gen 6+)",
+        "probability": "6/4096"
+    },
+    "masudaMethodGen5": {
+        "name": "Masuda Method (Gen 5)",
+        "probability": "6/8192"
+    },
+    "masudaMethodGen4": {
+        "name": "Masuda Method (Gen 4)",
+        "probability": "5/8192"
+    },
+    "shinyCharmGen6": {
+        "name": "Shiny Charm (Gen 6)",
+        "probability": "3/4096"
+    },
+    "shinyCharmGen5": {
+        "name": "Shiny Charm (Gen 5)",
+        "probability": "3/8192"
+    },
+    "masudaCharmGen6": {
+        "name": "Masuda Method w/ Shiny Charm (Gen 6+)",
+        "probability": "8/4096"
+    },
+    "masudaCharmGen5": {
+        "name": "Masuda Method w/ Shiny Charm (Gen 5)",
+        "probability": "8/8192"
+    },
+    "dynamaxAdventure": {
+        "name": "Dynamx Adventures",
+        "probability": "1/300"
+    },
+    "dynamaxAdventureCharm": {
+        "name": "Dynamx Adventures w/ Shiny Charm",
+        "probability": "1/100"
+    }
+}
+
+export function updatePokemonParameters() {
+    return;
+}

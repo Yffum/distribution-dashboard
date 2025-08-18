@@ -1,4 +1,12 @@
+## To run with modules:
+python -m http.server 8000
+http://localhost:8000
+
 # ToDo
+
+## 2025-08-18
+- [ ] Separate updateChart into general function for all themes, and separate function for no theme
+- [ ] Create updateThemeContent var that gets assigned a function based on theme
 
 ## 2025-08-15
 - [ ] Fix: top label gets clipped for p>=0.001

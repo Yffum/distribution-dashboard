@@ -1,3 +1,5 @@
+import * as Pokemon from './pokemon.js';
+
 const pInput = document.getElementById('pInput');
 const ctx = document.getElementById('cdfChart').getContext('2d');
 const themeSelect = document.getElementById('theme-select');
@@ -52,10 +54,10 @@ const chartTopPadding = 150;
 
 function toTitleCase(str) {
   return str
-    .toLowerCase()               // make everything lowercase first
-    .split(' ')                  // split into words
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
-    .join(' ');                  // join words back together
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
+    .join(' '); 
 }
 
 // Handle URL parameters e.g. /?theme=none
