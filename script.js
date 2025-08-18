@@ -1,5 +1,89 @@
 const pInput = document.getElementById('pInput');
 const ctx = document.getElementById('cdfChart').getContext('2d');
+const themeSelect = document.getElementById('theme-select');
+const shinyRates = {
+    "baseRateGen6": {
+        "name": "Base Rate (Gen 6+)",
+        "probability": "1/4096"
+    },
+    "baseRateGen2": {
+        "name": "Base Rate (Gen 2-5)",
+        "probability": "1/8192"
+    },
+    "masudaMethodGen6": {
+        "name": "Masuda Method (Gen 6+)",
+        "probability": "6/4096"
+    },
+    "masudaMethodGen5": {
+        "name": "Masuda Method (Gen 5)",
+        "probability": "6/8192"
+    },
+    "masudaMethodGen4": {
+        "name": "Masuda Method (Gen 4)",
+        "probability": "5/8192"
+    },
+    "shinyCharmGen6": {
+        "name": "Shiny Charm (Gen 6)",
+        "probability": "3/4096"
+    },
+    "shinyCharmGen5": {
+        "name": "Shiny Charm (Gen 5)",
+        "probability": "3/8192"
+    },
+    "masudaCharmGen6": {
+        "name": "Masuda Method w/ Shiny Charm (Gen 6+)",
+        "probability": "8/4096"
+    },
+    "masudaCharmGen5": {
+        "name": "Masuda Method w/ Shiny Charm (Gen 5)",
+        "probability": "8/8192"
+    },
+    "dynamaxAdventure": {
+        "name": "Dynamx Adventures",
+        "probability": "1/300"
+    },
+    "dynamaxAdventureCharm": {
+        "name": "Dynamx Adventures w/ Shiny Charm",
+        "probability": "1/100"
+    }
+}
+
+function toTitleCase(str) {
+  return str
+    .toLowerCase()               // make everything lowercase first
+    .split(' ')                  // split into words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+    .join(' ');                  // join words back together
+}
+
+// Handle URL parameters e.g. /?theme=none
+function applyQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    const theme = params.get("theme");
+    if (theme) {
+        // Verify theme exists
+        const themeOptions = Array.from(themeSelect.options);
+        const isValid = themeOptions.some(option =>
+            option.value.toLowerCase() === theme);
+        if (!isValid) return;
+        // Update theme
+        themeSelect.value = toTitleCase(theme);
+    }
+}
+
+// Returns control element ID for given theme
+function getControlID(theme) {
+    switch (theme) {
+        case 'None': return 'default-controls';
+        case 'Pokemon': return 'pokemon-controls';
+    }
+}
+
+// Returns control element for given theme
+function getControlElement(theme) {
+    id = getControlID(theme);
+    return document.getElementById(id);
+}
 
 function getCssColor(varName) {
     return getComputedStyle(document.documentElement)
@@ -35,6 +119,21 @@ function geometricCDF(p, nMax) {
 function computeMaxN(p, threshold=0.99) {
     // Returns the first value at which the function evaluates to .99
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
+}
+
+function updateTheme() {
+    // Get controls id for selected theme
+    let id = getControlID(themeSelect.value);
+    // Hide other controls
+    const controls = document.querySelectorAll(".controls");
+    controls.forEach(panel => {
+        if (panel.id === id) {
+            panel.style.display = "block";
+        } else {
+            panel.style.display = "none";
+        }
+    });
+
 }
 
 function updateChart() {
@@ -343,8 +442,11 @@ const cdfChart = new Chart(ctx, {
     plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
 
+themeSelect.addEventListener('input', updateTheme);
 pInput.addEventListener('input', updateChart);
 window.addEventListener('resize', adjustChartForMobile);
 
+applyQueryParams();
+updateTheme();
 updateChart();
 adjustChartForMobile();

@@ -35,14 +35,45 @@ h2 {
     color: var(--color-text-muted);
 }
 
-.controls {
+#theme-selector {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
+    flex-direction: row;
+    gap: 10px;
 }
 
-.controls label {
+#theme-selector label {
     margin-right: 10px;
     font-weight: bold;
+}
+
+.controls {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    text-align: center;
+    margin-bottom: 20px;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls__item label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.controls__info {
+    display: block;
+    margin-top: 20px;
+}
+
+.controls__info label {
+    font-weight: normal;
 }
 
 input[type=number] {

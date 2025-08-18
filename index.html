@@ -10,12 +10,46 @@
 </head>
 <body>
 
-<h2>Geometric CDF</h2>
+<h2>Probability Visualizer</h2>
 <p class="description">Visualizing the probability of success over repeated Bernoulli trials.</p>
 
-<div class="controls">
-    <label for="pInput">Success Probability (p):</label>
-    <input type="number" id="pInput" value="0.01" min="0.0001" max="0.1" step="0.0001">
+<!-- The theme determines which control panel shows. -->
+<div id="theme-selector">
+    <label for="theme-select">Theme:</label>
+    <select id="theme-select">
+        <option value="None">None</option>
+        <option value="Pokemon">Pokemon</option>
+    </select>
+</div>
+
+<div class="controls" id="default-controls">
+    <div class="controls__item">
+        <label for="pInput">Success Probability (p):</label>
+        <input type="number" id="pInput" value="0.01" min="0.0001" max="0.1" step="0.0001">
+    </div>
+</div>
+
+<div class="controls" id="pokemon-controls">
+    <div class="controls__item">
+        <label for="pokemon-select">Shiny Method:</label>
+        <select id="pokemon-select">
+            <option value="baseRateGen6">Base Rate (Gen 6+)</option>
+            <option value="baseRateGen2">Base Rate (Gen 2-5)</option>
+            <option value="masudaMethodGen6">Masuda Method (Gen 6+)</option>
+            <option value="masudaMethodGen5">Masuda Method (Gen 5)</option>
+            <option value="masudaMethodGen4">Masuda Method (Gen 4)</option>
+            <option value="shinyCharmGen6">Shiny Charm (Gen 6)</option>
+            <option value="shinyCharmGen5">Shiny Charm (Gen 5)</option>
+            <option value="masudaCharmGen6">Masuda Method w/ Shiny Charm (Gen 6+)</option>
+            <option value="masudaCharmGen5">Masuda Method w/ Shiny Charm (Gen 5)</option>
+            <option value="dynamaxAdventure">Dynamx Adventures</option>
+            <option value="dynamaxAdventureCharm">Dynamx Adventures w/ Shiny Charm</option>
+        </select>
+    </div>
+    <div class="controls__info">
+        <label>Shiny Rate: </label>
+        <label>N/A</label>
+    </div>
 </div>
 
 <div id="chartWrapper">
