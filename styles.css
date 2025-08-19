@@ -8,19 +8,25 @@
     --color-bg-red: rgba(200, 0, 0, 0.15);
     --color-text-main: #333;
     --color-text-muted: #555;
-    --color-certain: rgb(0, 160, 0);       /* dark green */
-    --color-v-likely: rgb(80, 200, 0);     /* light green */
-    --color-likely: rgb(200, 180, 0);      /* darker yellow/gold */
-    --color-even: rgb(255, 140, 0);        /* orange */
-    --color-unlikely: rgb(220, 60, 0);     /* dark orange/red */
-    --color-v-unlikely: rgb(160, 0, 0);    /* red */
+    --color-certain: rgb(0, 160, 0);
+    --color-v-likely: rgb(80, 200, 0);
+    --color-likely: rgb(200, 180, 0);
+    --color-even: rgb(255, 140, 0);
+    --color-unlikely: rgb(220, 60, 0);
+    --color-v-unlikely: rgb(160, 0, 0);
+}
+
+html {
+    margin: 0;
+    padding: 0;
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--color-secondary);
-    padding: 40px;
+    padding: 0;
     color: var(--color-text-main);
+    margin: 0;
 }
 
 h2 {

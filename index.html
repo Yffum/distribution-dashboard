@@ -5,15 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geometric CDF Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="navbar.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
     <script type="module" src="main.js"></script>
     <script type="module" src="pokemon.js"></script>
+    <script type="module" src="navigation.js"></script>
 </head>
 <body>
 
-<h2>Probability Visualizer</h2>
-<p class="description">Visualizing the probability of success over repeated Bernoulli trials.</p>
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a class="logo">Probability Visualizer</a>
+      <div class="dropdown">
+        <button class="dropdown-button" id="themeButton">Theme ▼</button>
+        <div class="dropdown-content" id="themeMenu">
+            <a data-value="None">None</a>
+            <a data-value="Pokemon">Pokemon</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Spacer below nav bar -->
+<div style="height: 50px;"></div>
 
 <!-- The theme determines which control panel shows. -->
 <div id="theme-selector">
@@ -23,6 +40,9 @@
         <option value="Pokemon">Pokemon</option>
     </select>
 </div>
+
+<h2>Probability Visualizer</h2>
+<p class="description">Visualizing the probability of success over repeated Bernoulli trials.</p>
 
 <div class="controls" id="default-controls">
     <div class="controls__item">
