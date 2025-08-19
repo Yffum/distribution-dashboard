@@ -90,9 +90,9 @@ function computeMaxN(p, threshold=0.99) {
 }
 
 // Update theme based on themeSelect and set updateParameters
-function updateTheme() {
+export function updateTheme(theme) {
     // Get controls id for selected theme
-    let id = getControlID(themeSelect.value);
+    let id = getControlID(theme);
     // Hide other controls
     const controls = document.querySelectorAll(".controls");
     controls.forEach(panel => {
@@ -104,7 +104,7 @@ function updateTheme() {
     });
 
     // Set parameter update function
-    updateParameters = getUpdateFunction(themeSelect.value);
+    updateParameters = getUpdateFunction(theme);
 
     // Update chart
     updateChart();
@@ -431,12 +431,12 @@ const cdfChart = new Chart(ctx, {
     plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
 
-themeSelect.addEventListener('input', updateTheme);
+//themeSelect.addEventListener('input', updateTheme);
 pInput.addEventListener('input', updateChart);
 window.addEventListener('resize', updateInterfaceScale);
 
 applyQueryParams();
-updateTheme();
+updateTheme(themeSelect.value);
 updateParameters();
 updateChart();
 updateInterfaceScale();

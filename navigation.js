@@ -1,4 +1,4 @@
-//import { updateTheme } from './main.js';
+import { updateTheme } from './main.js';
 
 const themeMenu = document.getElementById('themeMenu');
 const themeButton = document.getElementById('themeButton');
@@ -17,14 +17,14 @@ window.addEventListener('click', (event) => {
     }
 });
 
-// // Handle clicking an item
-// menu.querySelectorAll('a').forEach(item => {
-//     item.addEventListener('click', (e) => {
-//         e.preventDefault(); // optional if you don't want the page to jump
-//         const theme = item.dataset.value; // the value of the item
-//         console.log('Selected item:', theme);
+// Handle clicking an item
+themeMenu.querySelectorAll('a').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault(); // optional if you don't want the page to jump
+        const theme = item.dataset.value; // the value of the item
+        console.log('Selected item:', theme);
         
-//         updateTheme(theme)
-//         menu.style.display = 'none'; // close dropdown
-//     });
-// });
+        updateTheme(theme)
+        themeMenu.style.display = 'none'; // close dropdown
+    });
+});
