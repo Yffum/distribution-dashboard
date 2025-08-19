@@ -1,11 +1,3 @@
-await new Promise(resolve => {
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", resolve);
-    } else {
-        resolve();
-    }
-});
-
 import { updateChart, updateParametersDefault } from './main.js';
 import * as Pokemon from './pokemon.js';
 
