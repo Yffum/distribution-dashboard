@@ -89,7 +89,7 @@ themeButton.addEventListener('click', (e) => {
 
 // Close dropdown themeMenu on click outside
 window.addEventListener('click', (event) => {
-    if (!event.target.matches('.dropdown-themeButton')) {
+    if (!event.target.matches('.dropdown-button')) {
         themeMenu.style.display = 'none';
     }
 });
