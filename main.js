@@ -3,52 +3,8 @@ import * as Pokemon from './pokemon.js';
 const pInput = document.getElementById('pInput');
 const ctx = document.getElementById('cdfChart').getContext('2d');
 const themeSelect = document.getElementById('theme-select');
-const shinyRates = {
-    "baseRateGen6": {
-        "name": "Base Rate (Gen 6+)",
-        "probability": "1/4096"
-    },
-    "baseRateGen2": {
-        "name": "Base Rate (Gen 2-5)",
-        "probability": "1/8192"
-    },
-    "masudaMethodGen6": {
-        "name": "Masuda Method (Gen 6+)",
-        "probability": "6/4096"
-    },
-    "masudaMethodGen5": {
-        "name": "Masuda Method (Gen 5)",
-        "probability": "6/8192"
-    },
-    "masudaMethodGen4": {
-        "name": "Masuda Method (Gen 4)",
-        "probability": "5/8192"
-    },
-    "shinyCharmGen6": {
-        "name": "Shiny Charm (Gen 6)",
-        "probability": "3/4096"
-    },
-    "shinyCharmGen5": {
-        "name": "Shiny Charm (Gen 5)",
-        "probability": "3/8192"
-    },
-    "masudaCharmGen6": {
-        "name": "Masuda Method w/ Shiny Charm (Gen 6+)",
-        "probability": "8/4096"
-    },
-    "masudaCharmGen5": {
-        "name": "Masuda Method w/ Shiny Charm (Gen 5)",
-        "probability": "8/8192"
-    },
-    "dynamaxAdventure": {
-        "name": "Dynamx Adventures",
-        "probability": "1/300"
-    },
-    "dynamaxAdventureCharm": {
-        "name": "Dynamx Adventures w/ Shiny Charm",
-        "probability": "1/100"
-    }
-}
+
+let updateParameters;
 
 const chartTopPadding = 150;
 
@@ -89,6 +45,14 @@ function getControlElement(theme) {
     return document.getElementById(id);
 }
 
+// Returns the update function for given theme
+function getUpdateFunction(theme) {
+    switch (theme) {
+        case 'None': return updateParametersDefault;
+        case 'Pokemon': return Pokemon.updateParameters;
+    } 
+}
+
 function getCssColor(varName) {
     return getComputedStyle(document.documentElement)
            .getPropertyValue(varName).trim();
@@ -125,6 +89,7 @@ function computeMaxN(p, threshold=0.99) {
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
 }
 
+// Update theme based on themeSelect and set updateParameters
 function updateTheme() {
     // Get controls id for selected theme
     let id = getControlID(themeSelect.value);
@@ -138,9 +103,28 @@ function updateTheme() {
         }
     });
 
+    // Set parameter update function
+    updateParameters = getUpdateFunction(themeSelect.value);
+
+    // Update chart
+    updateChart();
 }
 
-function updateChart() {
+function updateParametersDefault() {
+    return;
+}
+
+// Set the title of the chart
+function updateTitle() {
+    // ToDo: Implement
+
+}
+
+// Get p from pInput and plot chart
+export function updateChart() {
+    // Update parameters based on controls
+    updateParameters();
+
     // Get p input
     let p = parseFloat(pInput.value);
 
@@ -173,7 +157,8 @@ function updateChart() {
     cdfChart.update();
 }
 
-function adjustChartForMobile() {
+// Adapts interface for mobile/desktop based on window width
+function updateInterfaceScale() {
     const container = document.getElementById('chartContainer');
     const isMobile = window.innerWidth <= 750;
 
@@ -448,9 +433,10 @@ const cdfChart = new Chart(ctx, {
 
 themeSelect.addEventListener('input', updateTheme);
 pInput.addEventListener('input', updateChart);
-window.addEventListener('resize', adjustChartForMobile);
+window.addEventListener('resize', updateInterfaceScale);
 
 applyQueryParams();
 updateTheme();
+updateParameters();
 updateChart();
-adjustChartForMobile();
+updateInterfaceScale();
