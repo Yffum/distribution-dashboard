@@ -69,7 +69,9 @@ function getPercentStr(prob) {
   return percent.toFixed(decimals) + "%";
 }
 
+// Updates parameters and chart
 export function updateParameters() {
+    console.log('updateParametersPokemon()');
     // Get shiny rate
     let rateStr = shinyRates[rateSelect.value].probability;
     // Update p for chart
@@ -79,8 +81,7 @@ export function updateParameters() {
     let percentStr = ` (${getPercentStr(rate)})`;
     shinyRateLabel.textContent = rateStr + percentStr;
 
-    // import updateTitle and set title of chart
+    updateChart();
 }
 
-
-rateSelect.addEventListener('input', updateChart)
+rateSelect.addEventListener('input', updateParameters)

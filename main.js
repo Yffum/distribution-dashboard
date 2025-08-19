@@ -2,56 +2,12 @@ import * as Pokemon from './pokemon.js';
 
 const pInput = document.getElementById('pInput');
 const ctx = document.getElementById('cdfChart').getContext('2d');
-const themeSelect = document.getElementById('theme-select');
-
-let updateParameters;
 
 const chartTopPadding = 150;
 
-function toTitleCase(str) {
-  return str
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
-    .join(' '); 
-}
 
-// Handle URL parameters e.g. /?theme=none
-function applyQueryParams() {
-    const params = new URLSearchParams(window.location.search);
-    const theme = params.get("theme");
-    if (theme) {
-        // Verify theme exists
-        const themeOptions = Array.from(themeSelect.options);
-        const isValid = themeOptions.some(option =>
-            option.value.toLowerCase() === theme);
-        if (!isValid) return;
-        // Update theme
-        themeSelect.value = toTitleCase(theme);
-    }
-}
 
-// Returns control element ID for given theme
-function getControlID(theme) {
-    switch (theme) {
-        case 'None': return 'default-controls';
-        case 'Pokemon': return 'pokemon-controls';
-    }
-}
 
-// Returns control element for given theme
-function getControlElement(theme) {
-    id = getControlID(theme);
-    return document.getElementById(id);
-}
-
-// Returns the update function for given theme
-function getUpdateFunction(theme) {
-    switch (theme) {
-        case 'None': return updateParametersDefault;
-        case 'Pokemon': return Pokemon.updateParameters;
-    } 
-}
 
 function getCssColor(varName) {
     return getComputedStyle(document.documentElement)
@@ -89,42 +45,14 @@ function computeMaxN(p, threshold=0.99) {
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
 }
 
-// Update theme based on themeSelect and set updateParameters
-export function updateTheme(theme) {
-    // Get controls id for selected theme
-    let id = getControlID(theme);
-    // Hide other controls
-    const controls = document.querySelectorAll(".controls");
-    controls.forEach(panel => {
-        if (panel.id === id) {
-            panel.style.display = "block";
-        } else {
-            panel.style.display = "none";
-        }
-    });
 
-    // Set parameter update function
-    updateParameters = getUpdateFunction(theme);
-
-    // Update chart
-    updateChart();
+export function updateParametersDefault() {
+    console.log('updateParametersDefault()');
 }
 
-function updateParametersDefault() {
-    return;
-}
-
-// Set the title of the chart
-function updateTitle() {
-    // ToDo: Implement
-
-}
 
 // Get p from pInput and plot chart
 export function updateChart() {
-    // Update parameters based on controls
-    updateParameters();
-
     // Get p input
     let p = parseFloat(pInput.value);
 
@@ -435,8 +363,5 @@ const cdfChart = new Chart(ctx, {
 pInput.addEventListener('input', updateChart);
 window.addEventListener('resize', updateInterfaceScale);
 
-applyQueryParams();
-updateTheme(themeSelect.value);
-updateParameters();
 updateChart();
 updateInterfaceScale();
