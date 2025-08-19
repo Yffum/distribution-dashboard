@@ -79,8 +79,9 @@ h2 {
     justify-content: center;
 }
 
-.controls__info label {
+.controls__info p {
     font-weight: normal;
+    margin: 2px;
 }
 
 input[type=number] {
