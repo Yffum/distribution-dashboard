@@ -33,7 +33,7 @@ function getControlID(theme) {
 
 // Returns control element for given theme
 function getControlElement(theme) {
-    id = getControlID(theme);
+    let id = getControlID(theme);
     return document.getElementById(id);
 }
 
