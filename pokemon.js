@@ -42,11 +42,11 @@ const shinyRates = {
         "probability": "8/8192"
     },
     "dynamaxAdventure": {
-        "name": "Dynamx Adventures",
+        "name": "Dynamax Adventures",
         "probability": "1/300"
     },
     "dynamaxAdventureCharm": {
-        "name": "Dynamx Adventures w/ Shiny Charm",
+        "name": "Dynamax Adventures w/ Shiny Charm",
         "probability": "1/100"
     }
 };
