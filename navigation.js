@@ -1,8 +1,12 @@
 import { updateChart, updateParametersDefault } from './main.js';
 import * as Pokemon from './pokemon.js';
+import * as Main from './main.js';
 
+const pInput = document.getElementById('pInput');
 const themeMenu = document.getElementById('themeMenu');
 const themeButton = document.getElementById('themeButton');
+const pageTitle = document.getElementById('pageTitle');
+const pageDescription = document.getElementById('pageDescription');
 
 const themeList = ["None", "Pokemon"];
 let currentTheme = "None";
@@ -20,6 +24,7 @@ function toTitleCase(str) {
 
 // Returns control element ID for given theme
 function getControlID(theme) {
+    // ToDo: automate by manipulating string
     switch (theme) {
         case 'None': return 'default-controls';
         case 'Pokemon': return 'pokemon-controls';
@@ -31,7 +36,6 @@ function getControlElement(theme) {
     id = getControlID(theme);
     return document.getElementById(id);
 }
-
 
 // Returns the update function for given theme
 function getUpdateFunction(theme) {
@@ -48,7 +52,7 @@ function applyQueryParams() {
     if (theme) {
         // Set theme if it exists
         if (themeList.includes(theme)) {
-            updateTheme(theme);
+            currentTheme = theme;
         }
     }
 }
@@ -73,7 +77,27 @@ export function updateTheme(theme) {
     updateParameters = getUpdateFunction(theme);
 
     // Update chart
+    updatePageContent(theme);
     updateParameters();
+}
+
+function updatePageContent(theme) {
+    // ToDo: automate with string manipulation
+    let pageContent;
+    switch (theme) {
+        case 'None':
+            pageContent = Main.pageContent;
+            console.log('none content');
+            break;
+        case 'Pokemon':
+            pageContent = Pokemon.pageContent;
+            console.log('pokemon content');
+            break;
+        default:
+            break;
+    }
+    pageTitle.textContent = pageContent.title;
+    pageDescription.textContent = pageContent.description;
 }
 
 
@@ -81,6 +105,12 @@ export function updateTheme(theme) {
 
 applyQueryParams();
 updateTheme(currentTheme);
+
+//pInput.addEventListener('input', updateParameters);
+pInput.addEventListener('input', (e) => {
+    updateParameters();
+    updateChart();
+});
 
 // Open dropdown themeMenu on click
 themeButton.addEventListener('click', (e) => {
@@ -103,6 +133,7 @@ themeMenu.querySelectorAll('a').forEach(item => {
         console.log('Selected item:', theme);
         
         updateTheme(theme);
+        updateChart();
         themeMenu.style.display = 'none'; // close dropdown
     });
 });

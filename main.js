@@ -1,11 +1,17 @@
 import * as Pokemon from './pokemon.js';
 
-const pInput = document.getElementById('pInput');
 const ctx = document.getElementById('cdfChart').getContext('2d');
 
 const chartTopPadding = 150;
 
+// Static page content based on theme
+export const pageContent = {
+    "title": "Geometric CDF Visualizer",
+    "description": "Visualizing the probability of success over repeated Bernoulli trials."
+};
 
+let chartTitle = 'Geometric CDF';
+let chartSubtitle = '';
 
 
 
@@ -45,11 +51,29 @@ function computeMaxN(p, threshold=0.99) {
     return Math.ceil(Math.log(1 - threshold) / Math.log(1 - p));
 }
 
-
 export function updateParametersDefault() {
-    console.log('updateParametersDefault()');
+    console.log('updateParametersNone');
+    let p = parseFloat(pInput.value);
+    let title = `Geometric CDF for p=${p}`;
+    // If p is valid, add subtitle
+    if (!isNaN(p) && p > 0) {
+        const mean = Math.round(1 / p); // round to 2 decimals
+        let subtitle = `Expected Number of Attempts: ${mean.toLocaleString()}`
+        updateChartLabels(title, subtitle);
+        return;
+    }
+    // If p is not valid just add title
+    updateChartLabels(title, chartSubtitle);
+    updateChart();
 }
 
+export function updateChartLabels(title, subtitle) {
+    console.log('updateChartLabels');
+    chartTitle = title;
+    if (subtitle) {
+        chartSubtitle = subtitle;
+    }
+}
 
 // Get p from pInput and plot chart
 export function updateChart() {
@@ -112,27 +136,35 @@ const topLeftTitlePlugin = {
         const subtitleSpacing = 35;
 
         ctx.save();
-        ctx.font = 'bold 24px sans-serif';
+
+
+        // Dynamically adjust font size based on title length
+        let titleFontSize = 24;
+        if (chartTitle.length > 30) {
+            titleFontSize = 20; // smaller if too long
+        } else if (chartTitle.length > 50) {
+            titleFontSize = 18; // even smaller if very long
+        }
+
+        ctx.font = `bold ${titleFontSize}px sans-serif`;
         ctx.fillStyle = COLORS.textMain;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
         // Title
         ctx.fillText(
-            `Geometric CDF for p = ${p}`, 
+            chartTitle, 
             titlePadding*2, 
             titlePadding);
 
         // Subtitle
-        if (!isNaN(p) && p > 0) {
-            const mean = Math.round(1 / p); // round to 2 decimals
-            ctx.font = '16px sans-serif';
-            ctx.fillText(
-                `Expected Number of Attempts: ${mean.toLocaleString()}`, 
-                titlePadding*2, 
-                titlePadding + subtitleSpacing
-            );
-        }
+        ctx.font = '16px sans-serif';
+        ctx.fillText(
+            chartSubtitle, 
+            titlePadding*2, 
+            titlePadding + subtitleSpacing
+        );
+
         ctx.restore();
     }
 };
@@ -359,8 +391,6 @@ const cdfChart = new Chart(ctx, {
     plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
 
-//themeSelect.addEventListener('input', updateTheme);
-pInput.addEventListener('input', updateChart);
 window.addEventListener('resize', updateInterfaceScale);
 
 updateChart();

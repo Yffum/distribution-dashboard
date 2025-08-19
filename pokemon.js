@@ -1,4 +1,4 @@
-import { updateChart } from './main.js';
+import { updateChart, updateChartLabels } from './main.js';
 
 const rateSelect = document.getElementById('pokemon-select');
 const pInput = document.getElementById('pInput');
@@ -49,7 +49,13 @@ const shinyRates = {
         "name": "Dynamx Adventures w/ Shiny Charm",
         "probability": "1/100"
     }
-}
+};
+
+// Static page content based on theme
+export const pageContent = {
+    "title": "Pokémon Shiny Odds Visualizer",
+    "description": "Visualizing shiny odds over multiple attempts."
+};
 
 // Returns a well-formatted percent string based on a given probability
 function getPercentStr(prob) {
@@ -80,6 +86,11 @@ export function updateParameters() {
     // Update label
     let percentStr = ` (${getPercentStr(rate)})`;
     shinyRateLabel.textContent = rateStr + percentStr;
+
+    let title = shinyRates[rateSelect.value].name
+    const mean = Math.round(1 / rate); // round to 2 decimals
+    let subtitle = `Average Number of Attempts: ${mean.toLocaleString()}`
+    updateChartLabels(title, subtitle);
 
     updateChart();
 }
