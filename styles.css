@@ -74,8 +74,9 @@ h2 {
 }
 
 .controls__info {
-    display: block;
-    margin-top: 20px;
+    display: flex;
+    margin-top: 10px;
+    justify-content: center;
 }
 
 .controls__info label {

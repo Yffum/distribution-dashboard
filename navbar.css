@@ -52,6 +52,7 @@
 }
 
 .dropdown-content {
+    cursor: pointer;
     display: none;
     position: absolute;
     background-color: var(--surface);
