@@ -10,11 +10,12 @@ let updateParameters; // Implemented separately by each theme
 
 
 function toTitleCase(str) {
-  return str
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
-    .join(' '); 
+    if (!str) return "";
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
+        .join(' '); 
 }
 
 // Returns control element ID for given theme
