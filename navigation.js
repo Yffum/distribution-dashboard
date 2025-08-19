@@ -2,6 +2,7 @@ import { updateTheme } from './main.js';
 
 const themeMenu = document.getElementById('themeMenu');
 const themeButton = document.getElementById('themeButton');
+let currentTheme = "None";
 
 
 // Open dropdown themeMenu on click
@@ -24,7 +25,7 @@ themeMenu.querySelectorAll('a').forEach(item => {
         const theme = item.dataset.value; // the value of the item
         console.log('Selected item:', theme);
         
-        updateTheme(theme)
+        updateTheme(theme);
         themeMenu.style.display = 'none'; // close dropdown
     });
 });
