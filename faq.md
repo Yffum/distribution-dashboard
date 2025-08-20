@@ -16,9 +16,9 @@ Let's say we're doing Bernoulli trials with success probability $p$.
 
 For this formula, it's easier to think about the probability of failure, which is just $1 - p$.
 
-- For one trial, the probability of failure is $1 - p$.
-- For two trials, the probability of failing every trial is $(1 - p)(1 - p)$.
-- For three trials, the probability of failing every trial is $(1 - p)(1 - p)(1 - p)$.
+- For one trial, the probability of failure is $1 - p$
+- For two trials, the probability of failing every trial is $(1 - p)(1 - p)$
+- For three trials, the probability of failing every trial is $(1 - p)(1 - p)(1 - p)$
 
 In other words, the probability of failing $x$ trials in a row is:
 
