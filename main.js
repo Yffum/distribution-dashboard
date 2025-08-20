@@ -1,6 +1,8 @@
 import * as Pokemon from './pokemon.js';
 
 const ctx = document.getElementById('cdfChart').getContext('2d');
+const faq = document.getElementById('faq');
+const themeFaq = document.getElementById('themeFaq');
 
 const chartTopPadding = 150;
 
@@ -109,6 +111,38 @@ export function updateChart() {
     cdfChart.update();
 }
 
+// Fetch FAQ for a specific theme
+export function fetchThemeFAQ(theme) {
+    // Remove theme FAQ for no theme
+    if (theme == 'None') {
+        themeFaq.textContent = '';
+        return;
+    }
+    // Otherwise set theme FAQ
+    let filepath = theme.toLowerCase() + 'FAQ.md';
+    console.log(`themeFaq filepath: ${filepath}`);
+    fetch(filepath)
+        .then(res => res.text())
+        .then(md => {
+            // Convert markdown to HTML
+            themeFaq.innerHTML = marked.parse(md);
+            // Convert LaTeX math
+            MathJax.typeset();
+        });
+}
+
+// Fetch general FAQ from markdown at given filepath
+function fetchFAQ(filepath) {
+    fetch(filepath)
+        .then(res => res.text())
+        .then(md => {
+            // Convert markdown to HTML
+            faq.innerHTML = marked.parse(md);
+            // Convert LaTeX math
+            MathJax.typeset();
+        });
+}
+
 // Adapts interface for mobile/desktop based on window width
 function updateInterfaceScale() {
     const container = document.getElementById('chartContainer');
@@ -121,9 +155,11 @@ function updateInterfaceScale() {
         const offset = ((widthScale - 1) * 50) / (scale * widthScale);
         container.style.transform = `scale(${scale}) translateX(-${offset}%)`;
         container.style.width = `${widthScale*100}%`
+        //container.style.height = `${container.scrollHeight * scale}px`;
     } else {
         container.style.transform = 'scale(1)';
         container.style.width = '100%';
+        //container.style.height = 'auto';
     }
 }
 
@@ -395,3 +431,4 @@ window.addEventListener('resize', updateInterfaceScale);
 
 updateChart();
 updateInterfaceScale();
+fetchFAQ('FAQ.md');

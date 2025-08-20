@@ -1,4 +1,4 @@
-import { updateChart, updateParametersDefault } from './main.js';
+import { updateChart, updateParametersDefault, fetchThemeFAQ } from './main.js';
 import * as Pokemon from './pokemon.js';
 import * as Main from './main.js';
 
@@ -79,6 +79,7 @@ export function updateTheme(theme) {
     // Update chart
     updatePageContent(theme);
     updateParameters();
+    fetchThemeFAQ(theme);
 }
 
 function updatePageContent(theme) {
