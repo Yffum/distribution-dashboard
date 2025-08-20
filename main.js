@@ -8,7 +8,7 @@ const themeFaq = document.getElementById('themeFaq');
 
 const chartTopPadding = 150;
 const mobileMaxWindowWidth = 750;
-const mobileChartScale = '0.55';
+const mobileChartScale = '0.5';
 
 // Static page content based on theme
 export const pageContent = {
@@ -150,8 +150,10 @@ function fetchFAQ(filepath) {
 function updateChartScale() {
     const isMobile = window.innerWidth <= mobileMaxWindowWidth;
     if (isMobile) {
+        //chartContainer.style.width = '150%';
         chartContainer.style.zoom = mobileChartScale;
     } else {
+        //chartContainer.style.width = '100%';
         chartContainer.style.zoom = '1';
     }
 }
