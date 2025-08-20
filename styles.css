@@ -29,9 +29,27 @@ body {
     margin: 0;
 }
 
+h1 {
+    color: var(--color-primary);
+    text-align: center;
+}
+
 h2 {
     color: var(--color-primary);
     text-align: center;
+    margin-top: 50px;
+}
+
+h3 {
+    color: var(--color-primary);
+    text-align: left;
+    margin-top: 20px;
+}
+
+h4 {
+    color: var(--color-primary);
+    text-align: left;
+    margin-top: 20px;
 }
 
 .description {
@@ -95,12 +113,11 @@ input[type=number] {
     width: 90%;
     height: 500px;
     margin: 0 auto;
-    display: block;
+    display: flex;
     background-color: var(--color-bg-card);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
     box-sizing: border-box;
     transform-origin: top center;
 }
@@ -108,11 +125,6 @@ input[type=number] {
 #cdfChart {
     width: 90%;
     height: 500px;
-    display: flex;
-    box-sizing: content-box;
-}
-
-#chartWrapper { /* parent of container */
     display: block;
-    width: 100%;
+    box-sizing: content-box;
 }

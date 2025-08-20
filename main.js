@@ -1,10 +1,14 @@
 import * as Pokemon from './pokemon.js';
 
 const ctx = document.getElementById('cdfChart').getContext('2d');
+const chartContainer = document.getElementById('chartContainer');
+const chart = document.getElementById('cdfChart');
 const faq = document.getElementById('faq');
 const themeFaq = document.getElementById('themeFaq');
 
 const chartTopPadding = 150;
+const mobileMaxWindowWidth = 750;
+const mobileChartScale = '0.6';
 
 // Static page content based on theme
 export const pageContent = {
@@ -14,7 +18,6 @@ export const pageContent = {
 
 let chartTitle = 'Geometric CDF';
 let chartSubtitle = '';
-
 
 
 function getCssColor(varName) {
@@ -143,23 +146,13 @@ function fetchFAQ(filepath) {
         });
 }
 
-// Adapts interface for mobile/desktop based on window width
-function updateInterfaceScale() {
-    const container = document.getElementById('chartContainer');
-    const isMobile = window.innerWidth <= 750;
-
-    // Shrink content by scale, and then stretch container by widthScale
-    const scale = 0.5;
-    const widthScale = 2.2;
+// Zoom chart for mobile/desktop based on window width
+function updateChartScale() {
+    const isMobile = window.innerWidth <= mobileMaxWindowWidth;
     if (isMobile) {
-        const offset = ((widthScale - 1) * 50) / (scale * widthScale);
-        container.style.transform = `scale(${scale}) translateX(-${offset}%)`;
-        container.style.width = `${widthScale*100}%`
-        //container.style.height = `${container.scrollHeight * scale}px`;
+        chartContainer.style.zoom = mobileChartScale;
     } else {
-        container.style.transform = 'scale(1)';
-        container.style.width = '100%';
-        //container.style.height = 'auto';
+        chartContainer.style.zoom = '1';
     }
 }
 
@@ -427,8 +420,8 @@ const cdfChart = new Chart(ctx, {
     plugins: [topLeftTitlePlugin, partitionPlugin, customLabelsPlugin]
 });
 
-window.addEventListener('resize', updateInterfaceScale);
+window.addEventListener('resize', updateChartScale);
 
 updateChart();
-updateInterfaceScale();
+updateChartScale();
 fetchFAQ('FAQ.md');
