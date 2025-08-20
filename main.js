@@ -424,4 +424,4 @@ window.addEventListener('resize', updateChartScale);
 
 updateChart();
 updateChartScale();
-fetchFAQ('FAQ.md');
+fetchFAQ('faq.md');
