@@ -8,7 +8,7 @@ const themeFaq = document.getElementById('themeFaq');
 
 const chartTopPadding = 150;
 const mobileMaxWindowWidth = 750;
-const mobileChartScale = '0.6';
+const mobileChartScale = '0.55';
 
 // Static page content based on theme
 export const pageContent = {
