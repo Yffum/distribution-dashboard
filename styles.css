@@ -30,23 +30,27 @@ body {
 }
 
 h1 {
+    font-family: "Helvetica", "Arial", sans-serif;
     color: var(--color-primary);
     text-align: center;
 }
 
 h2 {
+    font-family: "Helvetica", "Arial", sans-serif;
     color: var(--color-primary);
     text-align: center;
     margin-top: 50px;
 }
 
 h3 {
+    font-family: "Helvetica", "Arial", sans-serif;
     color: var(--color-primary);
     text-align: left;
     margin-top: 20px;
 }
 
 h4 {
+    font-family: "Helvetica", "Arial", sans-serif;
     color: var(--color-primary);
     text-align: left;
     margin-top: 20px;
