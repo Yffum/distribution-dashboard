@@ -18,14 +18,18 @@
 
 html {
     margin: 0px;
-    padding: 10px;
+    padding: 0px;
+}
+
+#content {
+    padding: 20px;
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--color-secondary);
-    padding: 0;
     color: var(--color-text-main);
+    padding: 0;
     margin: 0;
 }
 
@@ -128,7 +132,6 @@ input[type=number] {
     margin: 0 auto;
     display: flex;
     background-color: var(--color-bg-card);
-    padding: 0px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     box-sizing: border-box;
@@ -140,4 +143,5 @@ input[type=number] {
     height: auto;
     display: block;
     box-sizing: content-box;
+    padding: 10px;
 }
