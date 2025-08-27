@@ -1,5 +1,9 @@
 # 2025-08-27
 
+## Essential
+
+- [ ] Add privacy policy
+
 ## Feature
 
 - [ ] Add theme-specific colors
