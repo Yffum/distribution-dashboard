@@ -13,5 +13,5 @@ http://localhost:8000
   - [-] Adjust label staggering. Label height should only be staggered if horizontal distance to previous label is sufficiently small, e.g. the 99% label is too high because it's far enough from the previous label horizontally that it shouldn't be staggered.
 - [x] Plan features
   - [x] Specialized themes with dropdown menus for specific uses; e.g., Dice:d6/d20, Pokemon:eggs/dynamax
-  - [ ] Other distributions?
+  - [-] Other distributions?
 - [ ] Update the dot width dynamically based on p; for large p (low max n) show dots, otherwise hide

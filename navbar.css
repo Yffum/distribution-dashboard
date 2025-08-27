@@ -25,6 +25,8 @@
 
 .navbar-inner {
     display: flex;
+    margin: auto;
+    max-width: 1000px;
     height: 64px;
     align-items: center;
     justify-content: space-between;
@@ -48,7 +50,7 @@
     font-size: 1rem;
     color: var(--text-muted);
     cursor: pointer;
-    padding: .5rem 1rem;
+    padding: .5rem 0rem;
 }
 
 .dropdown-content {
@@ -57,11 +59,13 @@
     position: absolute;
     background-color: var(--surface);
     box-shadow: var(--shadow);
-    min-width: 160px;
+    min-width: 10px;
     z-index: 1;
     margin-top: .25rem;
     border-radius: 4px;
     flex-direction: column;
+    right: 0;
+    left: auto;
 }
 
 .dropdown-content a {
