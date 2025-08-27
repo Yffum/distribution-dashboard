@@ -2,7 +2,7 @@
 
 A simple dashboard for visualizing probability distributions. The goal of this project was simply to gain experience using Javascript sans Node.js.
 
-Currently the dashboard only features a geometric CDF chart with labels at key probabilities to help one "get a feel" for the distribution at different p values.
+Currently the dashboard only features a geometric CDF chart with labels at key probabilities to get a general sense of the distribution for a given p value.
 
 I've added a theme selector for framing the distribution in different contexts. The only theme at the moment is Pokemon, which gives a dropdown menu of different techniques for finding shinies (rare Pokemon) based on corresponding p values. More charts or themes may or may not be added in the future.
 
