@@ -22,7 +22,9 @@ html {
 }
 
 #content {
+    margin: auto;
     padding: 20px;
+    max-width: 1000px;
 }
 
 body {
@@ -72,7 +74,9 @@ h4 {
 }
 
 .textContainer {
+    margin: auto;
     padding: 0px;
+    max-width: 700px;
 }
 
 #theme-selector {
