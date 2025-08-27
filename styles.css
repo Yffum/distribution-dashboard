@@ -1,6 +1,7 @@
 :root {
     --color-primary: #1f4e79;
     --color-secondary: #f4f6f8;
+    --color-footer: #142d44;
     --color-accent-green: rgb(0, 200, 0);
     --color-accent-red: rgba(200, 0, 0, 0.7);
     --color-bg-card: #fff;
@@ -33,6 +34,42 @@ body {
     color: var(--color-text-main);
     padding: 0;
     margin: 0;
+}
+
+.horizontal_shadow {
+    height: 50px;
+    background: var(--color-secondary);
+    box-shadow: 0 10px 10px rgba(0,0,0,.1);
+    position: relative;
+    z-index: 1;
+}
+
+footer {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    background-color: var(--color-primary);
+    padding: 3em;
+    padding-top: 2em;
+    text-align: left;
+    position: relative;
+    z-index: 0;
+}
+
+footer a:link{
+  color: white;
+  transition: color 0.3s;
+}
+
+footer a:visited {
+  color: lightgray;
+}
+
+footer a:hover {
+  color: darkgray;
+}
+
+footer a:active {
+  color: gray;
 }
 
 h1 {
